@@ -3,6 +3,10 @@ on: push
 jobs:
   upload_tool_cache:
     name: combined cache
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
     runs-on: ubuntu-22.04
     steps:
       - name: check out repository
