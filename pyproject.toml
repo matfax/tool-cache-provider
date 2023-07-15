@@ -1,0 +1,10 @@
+[project]
+name = "basic"
+description = "basic package"
+version = "0.1.0"
+authors = [
+    { name = "Matthias Fax", email = "mat@fax.fyi" }
+]
+dependencies = [
+    "path"
+]
