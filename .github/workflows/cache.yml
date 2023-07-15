@@ -1,0 +1,71 @@
+name: upload tool cache
+on: push
+jobs:
+  upload_tool_cache:
+    name: combined cache
+    runs-on: ubuntu-22.04
+    steps:
+      - name: clear any existing tool cache
+        run: |
+          mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
+          mkdir -p "${{ runner.tool_cache }}"
+      - name: setting up nodejs 18
+        uses: actions/setup-node@v3.7.0
+        with:
+          node-version: 18.x
+      - name: setting up nodejs 20
+        uses: actions/setup-node@v3.7.0
+        with:
+          node-version: 20.x
+      - name: setting up python 3.8
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: 3.8
+      - name: setting up python 3.9
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: 3.9
+      - name: setting up python 3.10
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: '3.10'
+      - name: setting up python 3.11
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: '3.11'
+      - name: setting up golang 1.19
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version: '^1.19'
+      - name: setting up golang 1.20
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version: '^1.20'
+      - name: setting up kotlin
+        uses: fwilhe2/setup-kotlin@0.6.0
+        with:
+          install-native: true
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: python
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: java
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: go
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: javascript
+      - name: archive tool cache
+        run: |
+          cd "${{ runner.tool_cache }}"
+          tar -czf tool_cache.tar.gz *
+      - name: upload tool cache artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{runner.tool_cache}}/tool_cache.tar.gz
