@@ -54,19 +54,7 @@ jobs:
       - name: initialize CodeQL for python
         uses: github/codeql-action/init@v2.20.4
         with:
-          languages: python
-      - name: initialize CodeQL for java
-        uses: github/codeql-action/init@v2.20.4
-        with:
-          languages: java
-      - name: initialize CodeQL for golang
-        uses: github/codeql-action/init@v2.20.4
-        with:
-          languages: go
-      - name: initialize CodeQL for javascript
-        uses: github/codeql-action/init@v2.20.4
-        with:
-          languages: javascript
+          languages: python, go, java, javascript
       - name: archive tool cache
         run: |
           cd "${{ runner.tool_cache }}"
