@@ -5,6 +5,8 @@ jobs:
     name: combined cache
     runs-on: ubuntu-22.04
     steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
       - name: clear any existing tool cache
         run: |
           mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
