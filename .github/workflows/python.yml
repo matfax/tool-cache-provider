@@ -40,7 +40,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        python-version: ${{ fromJson(needs.generate.outputs.matrix) }}
+        python-version: ${{ fromJson(needs.versions.outputs.matrix) }}
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3
