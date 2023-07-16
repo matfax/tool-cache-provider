@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/golang.yml'
+  workflow_dispatch:
   schedule:
     - cron: '5 8 * * *'
 

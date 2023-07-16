@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/codeql.yml'
+  workflow_dispatch:
   schedule:
     - cron: '0 8 * * *'
 
