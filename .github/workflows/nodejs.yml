@@ -1,0 +1,46 @@
+name: nodejs tool cache
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/nodejs.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  prepare:
+    uses: ./.github/workflows/prepare.yml
+    permissions:
+      contents: none
+    with:
+      language: nodejs
+      cache-subdir: node
+
+  update:
+    name: update
+    needs: prepare
+    environment: provider
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        node-version: ${{ fromJson(needs.prepare.outputs.versions) }}
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - name: setting up nodejs ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.7.0
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: javascript
