@@ -1,4 +1,5 @@
 name: python tool cache
+
 on:
   push:
     branches: [main]
@@ -8,6 +9,7 @@ on:
       - '**/pyproject.toml'
   schedule:
     - cron: '0 8 * * *'
+
 jobs:
   clear:
     name: clear
