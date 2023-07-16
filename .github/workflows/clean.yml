@@ -1,0 +1,25 @@
+name: clean
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clean.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '55 7 * * *'
+
+jobs:
+  runner:
+    name: temporary runner files
+    permissions:
+      contents: none
+    runs-on: [self-hosted, provider]
+    environment: provider
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: delete temporary files in the actions-runner path
+        run: |
+          rm -rf /actions-runner/_*
