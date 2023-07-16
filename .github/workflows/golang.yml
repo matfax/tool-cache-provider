@@ -1,0 +1,59 @@
+name: golang tool cache
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/golang.yml'
+  schedule:
+    - cron: '5 8 * * *'
+
+jobs:
+  clear:
+    name: clear
+    permissions:
+      contents: none
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: clear the existing golang tool cache
+        run: |
+          rm -rf "${{ runner.tool_cache }}/go"
+
+  versions:
+    name: supported versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.versions.outputs.matrix }}
+    steps:
+      - name: lookup supported golang versions
+        uses: arnested/go-version-action@v1.1.12
+        id: versions
+
+  update:
+    name: update golang ${{ matrix.golang-version }}
+    needs: [clear, versions]
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        golang-version: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - name: setting up golang ${{ matrix.golang-version }}
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version: ${{ matrix.golang-version }}
+          check-latest: true
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: go
