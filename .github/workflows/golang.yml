@@ -1,4 +1,5 @@
 name: golang tool cache
+
 on:
   push:
     branches: [main]
@@ -18,6 +19,7 @@ jobs:
   update:
     name: update golang ${{ matrix.golang-version }}
     needs: prepare
+    environment: provider
     permissions:
       actions: read
       contents: read

@@ -26,6 +26,7 @@ on:
 jobs:
   clear:
     name: clear
+    environment: provider
     permissions:
       contents: none
     runs-on: [ self-hosted, provider ]

@@ -24,7 +24,8 @@ jobs:
 
   update:
     name: update CodeQL
-    needs: [clear]
+    needs: clear
+    environment: provider
     permissions:
       actions: read
       contents: read
