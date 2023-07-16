@@ -24,6 +24,8 @@ jobs:
   versions:
     name: supported versions
     runs-on: ubuntu-latest
+    permissions:
+      contents: none
     outputs:
       matrix: ${{ steps.versions.outputs.matrix }}
     steps:
