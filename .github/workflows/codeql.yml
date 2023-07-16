@@ -1,0 +1,37 @@
+name: codeQL tool cache
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * *'
+jobs:
+  clear:
+    name: clear
+    permissions:
+      contents: none
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: clear the existing python tool cache
+        run: |
+          rm -rf "${{ runner.tool_cache }}/CodeQL"
+  update:
+    name: update CodeQL
+    needs: [clear]
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: python, go, java, javascript
