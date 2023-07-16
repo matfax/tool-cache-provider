@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: none
     runs-on: [self-hosted, provider]
+    environment: provider
     defaults:
       run:
         shell: bash
