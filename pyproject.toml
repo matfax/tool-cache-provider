@@ -2,9 +2,7 @@
 name = "basic"
 description = "basic package"
 version = "0.1.0"
-authors = [
-    { name = "Matthias Fax", email = "mat@fax.fyi" }
-]
-dependencies = [
-    "path"
-]
+authors = ["matfax <mat@fax.fyi>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"

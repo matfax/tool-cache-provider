@@ -1,0 +1,56 @@
+name: python tool cache
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * *'
+jobs:
+  clear:
+    name: clear
+    permissions:
+      contents: none
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: clear the existing python tool cache
+        run: |
+          rm -rf "${{ runner.tool_cache }}/Python"
+  versions:
+    name: supported versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.release.outputs.matrix }}
+    steps:
+      - id: release
+        uses: actions-matrix/release-matrix-action@v1.0.5
+        with:
+          search: python
+  update:
+    name: update python ${{ matrix.python-version }}
+    needs: [clear, versions]
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+    runs-on: [self-hosted, provider]
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        python-version: ${{ fromJson(needs.generate.outputs.matrix) }}
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - name: install poetry from PyPI
+        uses: install-pinned/poetry@96e0f8d3db047a27443717bee061ed3fbf28d28c  # 1.5.1
+      - name: setting up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: initialize CodeQL
+        uses: github/codeql-action/init@v2.20.4
+        with:
+          languages: python
