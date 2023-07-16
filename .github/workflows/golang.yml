@@ -8,34 +8,16 @@ on:
     - cron: '5 8 * * *'
 
 jobs:
-  clear:
-    name: clear
+  prepare:
+    uses: ./.github/workflows/prepare.yml
     permissions:
       contents: none
-    runs-on: [self-hosted, provider]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: clear the existing golang tool cache
-        run: |
-          rm -rf "${{ runner.tool_cache }}/go"
-
-  versions:
-    name: supported versions
-    runs-on: ubuntu-latest
-    permissions:
-      contents: none
-    outputs:
-      matrix: ${{ steps.versions.outputs.matrix }}
-    steps:
-      - name: lookup supported golang versions
-        uses: arnested/go-version-action@v1.1.12
-        id: versions
+    with:
+      language: go
 
   update:
     name: update golang ${{ matrix.golang-version }}
-    needs: [clear, versions]
+    needs: prepare
     permissions:
       actions: read
       contents: read
@@ -46,7 +28,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        golang-version: ${{ fromJSON(needs.versions.outputs.matrix) }}
+        golang-version: ${{ fromJson(needs.prepare.outputs.versions) }}
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3

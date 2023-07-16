@@ -11,39 +11,17 @@ on:
     - cron: '0 8 * * *'
 
 jobs:
-  clear:
-    name: clear
+  prepare:
+    uses: ./.github/workflows/prepare.yml
     permissions:
       contents: none
-    runs-on: [self-hosted, provider]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: clear the existing python tool cache
-        run: |
-          rm -rf "${{ runner.tool_cache }}/Python"
-
-  versions:
-    name: supported versions
-    runs-on: ubuntu-latest
-    permissions:
-      contents: none
-    outputs:
-      matrix: ${{ steps.release.outputs.version }}
-    steps:
-      - name: get date for 100 days ago
-        run: echo "version_date=$(date '+%F' --date='100 days ago')" >> "$GITHUB_ENV"
-      - id: release
-        uses: actions-matrix/release-matrix-action@v1.0.5
-        with:
-          search: python
-          date: ${{ env.version_date }}
-          limit: 8
+    with:
+      language: python
+      cache-subdir: Python
 
   update:
     name: update python ${{ matrix.python-version }}
-    needs: [clear, versions]
+    needs: prepare
     permissions:
       actions: read
       contents: read
@@ -54,7 +32,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        python-version: ${{ fromJson(needs.versions.outputs.matrix) }}
+        python-version: ${{ fromJson(needs.prepare.outputs.versions) }}
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3

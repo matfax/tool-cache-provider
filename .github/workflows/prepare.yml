@@ -1,0 +1,56 @@
+name: prepare
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+      cache-subdir:
+        required: false
+        type: string
+        default: ''
+      days:
+        required: false
+        default: 100
+        type: number
+      limit:
+        required: false
+        default: 8
+        type: number
+    outputs:
+      versions:
+        description: the supported versions within specified days
+        value: ${{ jobs.versions.outputs.matrix }}
+
+jobs:
+  clear:
+    name: clear
+    permissions:
+      contents: none
+    runs-on: [ self-hosted, provider ]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: clear the existing ${{ inputs.language }} tool cache
+        run: |
+          rm -rf "${{ runner.tool_cache }}/${{ (inputs.cache-subdir != '' && inputs.cache-subdir) || inputs.language }}"
+
+  versions:
+    name: supported versions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: none
+    outputs:
+      matrix: ${{ steps.release.outputs.version }}
+    steps:
+      - name: get date for ${{ inputs.days }} days ago
+        run: echo "version_date=$(date '+%F' --date='${{ inputs.days }} days ago')" >> "$GITHUB_ENV"
+      - id: release
+        name: find ${{ inputs.language }} releases within the last ${{ inputs.days }} days
+        uses: actions-matrix/release-matrix-action@v1.0.5
+        with:
+          search: ${{ inputs.language }}
+          date: ${{ env.version_date }}
+          limit: ${{ inputs.limit }}
