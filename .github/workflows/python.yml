@@ -39,7 +39,7 @@ jobs:
       - name: check out repository
         uses: actions/checkout@v3.5.3
       - name: install poetry from PyPI
-        uses: install-pinned/poetry@face8ebec3a6bc24af0c5dbc039b12299810de55  # 1.5.1
+        uses: install-pinned/poetry@ae9095a35d1dae609c52b9519c12b28093c1bdf6  # 1.5.1
       - name: setting up python ${{ matrix.python-version }}
         uses: actions/setup-python@v4.7.0
         with:
