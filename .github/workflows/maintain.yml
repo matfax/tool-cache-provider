@@ -59,6 +59,7 @@ jobs:
     name: initiate patch job on ${{ inputs.language }}
     concurrency: github-${{ inputs.language }}
     uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
     permissions:
       contents: read
       id-token: write
