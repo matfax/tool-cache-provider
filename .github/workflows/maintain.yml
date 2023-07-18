@@ -27,7 +27,9 @@ jobs:
     steps:
       - name: delete temporary files in the actions-runner path
         run: |
-          rm -rfv /actions-runner/_*
+          rm -rfv /actions-runner/_diag/*
+          rm -rfv /actions-runner/_work/_tool/*
+          rm -rfv /actions-runner/_work/_actions/*
       - name: clear user cache
         run: |
           rm -rfv ~/.cache/*
