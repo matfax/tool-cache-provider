@@ -31,7 +31,7 @@ jobs:
           rm -rfv /actions-runner/_work/_actions/*
       - name: clear user cache
         run: |
-          find ~/.cache/*/* -mmin +5 -delete
+          find ~/.cache/*/* -mmin +5 -delete 2>/dev/null
       - name: clear user lib
         run: |
           rm -rfv ~/.local/lib
