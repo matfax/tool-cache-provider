@@ -13,6 +13,7 @@ concurrency: github-${{ inputs.language }}
 jobs:
   clean:
     name: clean cache on ${{ matrix.language }}
+    concurrency: github-${{ inputs.language }}
     permissions:
       contents: none
     runs-on:
@@ -39,6 +40,7 @@ jobs:
           rm -rfv ~/go
   update:
     name: update snaps on ${{ inputs.language }}
+    concurrency: github-${{ inputs.language }}
     permissions:
       contents: none
     runs-on:
@@ -55,6 +57,7 @@ jobs:
           sudo snap refresh node --classic
   patch:
     name: initiate patch job on ${{ inputs.language }}
+    concurrency: github-${{ inputs.language }}
     uses: ./.github/workflows/gcloud.yml
     permissions:
       contents: read
