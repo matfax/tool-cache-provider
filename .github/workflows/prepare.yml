@@ -29,7 +29,10 @@ jobs:
     environment: provider
     permissions:
       contents: none
-    runs-on: [ self-hosted, provider ]
+    runs-on:
+      - self-hosted
+      - provider
+      - ${{ inputs.language }}
     defaults:
       run:
         shell: bash
