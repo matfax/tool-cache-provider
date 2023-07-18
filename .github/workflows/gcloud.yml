@@ -1,0 +1,45 @@
+name: gcloud
+
+on:
+  workflow_call:
+    inputs:
+      subcommand:
+        required: true
+        type: string
+    outputs:
+      result:
+        description: the supported versions within specified days
+        value: ${{ jobs.execute.outputs.result }}
+
+jobs:
+  execute:
+    name: execute compute job
+    environment: google cloud
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      result: ${{ steps.command.outputs.result }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - id: auth
+        name: authenticate to Google Cloud
+        uses: google-github-actions/auth@v1.1.1
+        with:
+          workload_identity_provider: ${{ secrets.ID_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+      - name: set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1.1.1
+        with:
+          skip_install: true
+          project_id: github-matfax
+      - name: execute gcloud compute job
+        id: command
+        run: |
+          export RESULT=$(gcloud compute ${{ inputs.subcommand }})
+          echo "result=$RESULT" >> "$GITHUB_ENV"
