@@ -27,12 +27,12 @@ jobs:
     steps:
       - name: delete temporary files in the actions-runner path
         run: |
-          rm -rfv /actions-runner/_diag/*
+          find /actions-runner/_diag -type f -mmin +5 -delete
           rm -rfv /actions-runner/_work/_tool/*
           rm -rfv /actions-runner/_work/_actions/*
       - name: clear user cache
         run: |
-          rm -rfv ~/.cache/*
+          find ~/.cache/*/* -mmin +5 -delete
       - name: clear user lib
         run: |
           rm -rfv ~/.local/lib
