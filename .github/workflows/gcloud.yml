@@ -42,4 +42,8 @@ jobs:
         id: command
         run: |
           export RESULT=$(gcloud compute ${{ inputs.subcommand }})
+          if [[ $? -ne 0 ]]; then
+            echo "Error running gcloud command"
+            exit 1
+          fi
           echo "result=$RESULT" >> "$GITHUB_ENV"
