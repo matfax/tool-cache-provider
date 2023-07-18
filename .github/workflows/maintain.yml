@@ -56,5 +56,8 @@ jobs:
   patch:
     name: initiate patch job on ${{ inputs.language }}
     uses: ./.github/workflows/gcloud.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       subcommand: os-config patch-jobs execute --instance-filter-names=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade --duration=3600s --reboot-config=default --rollout-mode=zone-by-zone --rollout-disruption-budget-percent=25 --description="apt upgrade on GitHub Runner Ubuntu 22.04 with ${{ inputs.language }} tools"
