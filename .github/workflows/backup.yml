@@ -1,4 +1,4 @@
-name: backup ${{ inputs.language }} runner
+name: backup
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ concurrency: github-${{ inputs.language }}
 
 jobs:
   check:
-    name: check instance
+    name: check ${{ inputs.language }} instance
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
@@ -22,7 +22,7 @@ jobs:
       subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
 
   delete:
-    name: delete existing machine image
+    name: delete existing ${{ inputs.language }} machine image
     needs: check
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
@@ -34,7 +34,7 @@ jobs:
       subcommand: machine-images delete gh-${{ inputs.language }}-ubuntu-22
 
   backup:
-    name: backup gh-${{ inputs.language }}-ubuntu-22
+    name: backup ${{ inputs.language }} runner
     needs:
       - check
       - delete
