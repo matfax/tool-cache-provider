@@ -25,7 +25,7 @@ on:
 
 jobs:
   clear:
-    name: clear
+    name: clear cache
     environment: provider
     permissions:
       contents: none
