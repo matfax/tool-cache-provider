@@ -52,7 +52,7 @@ jobs:
           
           if [[ $STATUS -ne 0 ]]; then
             ERROR=$(tail -n 1 /tmp/stderr.log)
-            echo "::error::$ERROR"
+            echo "::error::$LAST_ERROR_LINE" >&2
             exit $STATUS
           fi
           
