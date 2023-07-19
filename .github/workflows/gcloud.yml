@@ -46,16 +46,10 @@ jobs:
       - name: execute gcloud ${{ inputs.command }} job
         id: command
         run: |
-          {
-            RESULT=$(gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet) ; STATUS=${PIPESTATUS[0]}
-          } 2> >(tee /tmp/stderr.log >&2)
-          
+          RESULT=$(gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet) ; STATUS=$?
           if [[ $STATUS -ne 0 ]]; then
-            ERROR=$(tail -n 1 /tmp/stderr.log)
-            echo "::error::$LAST_ERROR_LINE" >&2
             exit $STATUS
           fi
-          
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "result<<$EOF" >> "$GITHUB_OUTPUT"
           echo "$RESULT" >> "$GITHUB_OUTPUT"
