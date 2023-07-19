@@ -46,4 +46,7 @@ jobs:
             echo "Error running gcloud command"
             exit $STATUS
           fi
-          echo "result='$RESULT'" >> "$GITHUB_ENV"
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "result<<$EOF" >> "$GITHUB_OUTPUT"
+          echo "$RESULT" >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
