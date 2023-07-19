@@ -39,6 +39,9 @@ jobs:
         if: inputs.language == 'go'
         run: |
           rm -rfv ~/go
+      - name: clear bash history
+        run: |
+          rm -rfv ~/.bash_history
 
   patch:
     name: initiate patch job on ${{ inputs.language }}
