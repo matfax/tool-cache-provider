@@ -43,7 +43,14 @@ jobs:
           skip_install: true
           version: ''
           project_id: github-matfax
-      - uses: maddog2050/executable-wrapper@v1.0.9
+      - name: execute gcloud ${{ inputs.command }} job
+        uses: maddog2050/executable-wrapper@v1.0.9
         id: command
+        continue-on-error: true
         with:
           run_command: gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet --format="json"
+      - name: escalate error message if error occured
+        if: steps.command.outputs.exitcode != '0'
+        uses: actions/github-script@v6.4.1
+        with:
+          script: core.setFailed(steps.command.outputs.stderr.split('\n').pop())
