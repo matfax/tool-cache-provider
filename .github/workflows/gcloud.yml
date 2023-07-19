@@ -41,9 +41,9 @@ jobs:
       - name: execute gcloud compute job
         id: command
         run: |
-          RESULT=$(gcloud compute ${{ inputs.subcommand }}) ; STATUS=$?
+          RESULT=$(gcloud compute ${{ inputs.subcommand }} --format="json") ; STATUS=$?
           if [[ $STATUS -ne 0 ]]; then
             echo "Error running gcloud command"
             exit $STATUS
           fi
-          echo "result=$RESULT" >> "$GITHUB_ENV"
+          echo "result='$RESULT'" >> "$GITHUB_ENV"
