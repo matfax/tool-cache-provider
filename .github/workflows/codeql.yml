@@ -40,6 +40,6 @@ jobs:
       - name: check out repository
         uses: actions/checkout@v3.5.3
       - name: initialize CodeQL
-        uses: github/codeql-action/init@v2.20.4
+        uses: github/codeql-action/init@v2.21.0
         with:
           languages: python, go, java, javascript
