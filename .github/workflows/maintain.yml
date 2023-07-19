@@ -1,4 +1,4 @@
-name: maintenance
+name: maintain ${{ inputs.language }}
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ concurrency: github-${{ inputs.language }}
 
 jobs:
   clean:
-    name: clean cache on ${{ matrix.language }}
+    name: clean up
     permissions:
       contents: none
     runs-on:
@@ -44,7 +44,7 @@ jobs:
           rm -rfv ~/.bash_history
 
   patch:
-    name: initiate patch job on ${{ inputs.language }}
+    name: initiate patch job
     needs: clean
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
@@ -52,10 +52,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: os-config patch-jobs execute --instance-filter-names=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade --duration=3600s --reboot-config=default --rollout-mode=zone-by-zone --rollout-disruption-budget-percent=25 --description="apt upgrade on GitHub Runner Ubuntu 22.04 with ${{ inputs.language }} tools"
+      subcommand: os-config patch-jobs execute --instance-filter-names=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade --duration=3600s --reboot-config=default --rollout-mode=zone-by-zone --rollout-disruption-budget-percent=25 --description="apt upgrade on GitHub Runner Ubuntu 22.04 LTS with ${{ inputs.language }} tools"
 
   update:
-    name: update snaps on ${{ inputs.language }}
+    name: update snaps
     needs: patch
     permissions:
       contents: none

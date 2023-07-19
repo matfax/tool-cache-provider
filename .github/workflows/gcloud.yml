@@ -6,6 +6,10 @@ on:
       subcommand:
         required: true
         type: string
+      command:
+        required: false
+        type: string
+        default: compute
     outputs:
       result:
         description: the supported versions within specified days
@@ -13,7 +17,7 @@ on:
 
 jobs:
   execute:
-    name: execute compute job
+    name: execute ${{ inputs.command }} job
     environment: google cloud
     defaults:
       run:
@@ -39,10 +43,10 @@ jobs:
           skip_install: true
           version: ''
           project_id: github-matfax
-      - name: execute gcloud compute job
+      - name: execute gcloud ${{ inputs.command }} job
         id: command
         run: |
-          RESULT=$(gcloud compute ${{ inputs.subcommand }} --format="json") ; STATUS=$?
+          RESULT=$(gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet) ; STATUS=$?
           if [[ $STATUS -ne 0 ]]; then
             echo "Error running gcloud command"
             exit $STATUS

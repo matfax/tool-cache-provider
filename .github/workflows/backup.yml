@@ -1,0 +1,48 @@
+name: backup ${{ inputs.language }} runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        required: true
+        description: runner label that identifies the installed language-specific tools
+        type: string
+
+concurrency: github-${{ inputs.language }}
+
+jobs:
+  check:
+    name: check instance
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
+
+  delete:
+    name: delete existing machine image
+    needs: check
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      command: beta compute
+      subcommand: machine-images delete gh-${{ inputs.language }}-ubuntu-22
+
+  backup:
+    name: backup gh-${{ inputs.language }}-ubuntu-22
+    needs:
+      - check
+      - delete
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      command: beta compute
+      subcommand: machine-images create gh-${{ inputs.language }}-ubuntu-22 --source-instance=gh-${{ inputs.language }}-ubuntu-22 --source-instance-zone=europe-north1-b --storage-location=europe-north1 --description="GitHub Runner on Ubuntu 22.04 LTS with ${{ inputs.language }} tools"
