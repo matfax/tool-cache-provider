@@ -26,7 +26,7 @@ jobs:
       contents: read
       id-token: write
     outputs:
-      result: ${{ steps.command.outputs.result }}
+      result: ${{ steps.command.outputs.stdout }}
     runs-on: ubuntu-latest
     steps:
       - name: check out repository
@@ -43,14 +43,7 @@ jobs:
           skip_install: true
           version: ''
           project_id: github-matfax
-      - name: execute gcloud ${{ inputs.command }} job
+      - uses: maddog2050/executable-wrapper@v1.0.9
         id: command
-        run: |
-          RESULT=$(gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet) ; STATUS=$?
-          if [[ $STATUS -ne 0 ]]; then
-            exit $STATUS
-          fi
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "result<<$EOF" >> "$GITHUB_OUTPUT"
-          echo "$RESULT" >> "$GITHUB_OUTPUT"
-          echo "$EOF" >> "$GITHUB_OUTPUT"
+        with:
+          run_command: gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet --format="json"
