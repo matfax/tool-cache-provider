@@ -37,6 +37,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1.1.1
         with:
           skip_install: true
+          version: ''
           project_id: github-matfax
       - name: execute gcloud compute job
         id: command
