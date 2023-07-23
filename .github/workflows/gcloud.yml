@@ -10,10 +10,17 @@ on:
         required: false
         type: string
         default: compute
+      credentials_file:
+        required: false
+        type: string
+        default: ''
     outputs:
       result:
         description: the supported versions within specified days
         value: ${{ jobs.execute.outputs.result }}
+      credentials_cache_path:
+        description: the name of the gcloud credentials file
+        value: ${{ jobs.execute.outputs.credentials_file }}
 
 jobs:
   execute:
@@ -27,13 +34,22 @@ jobs:
       id-token: write
     outputs:
       result: ${{ steps.command.outputs.stdout }}
+      credentials_file: ${{ steps.credentials_filename.outputs.filename }}
     runs-on: ubuntu-latest
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3
+      - name: restore cached credentials file
+        id: restore
+        if: inputs.credentials_file != ''
+        uses: actions/cache/restore@v3.3.1
+        with:
+          path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
+          key: ${{ github.run_id }}-gcloud-credentials-${{ inputs.credentials_file }}
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
+        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         with:
           workload_identity_provider: ${{ secrets.ID_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
@@ -49,8 +65,18 @@ jobs:
         continue-on-error: true
         with:
           run_command: gcloud ${{ inputs.command }} ${{ inputs.subcommand }} --quiet --format="json"
-      - name: escalate error message if error occured
+      - name: escalate error message if error occurred
         if: steps.command.outputs.exitcode != '0'
         uses: actions/github-script@v6.4.1
         with:
           script: core.setFailed(steps.command.outputs.stderr.split('\n').pop())
+      - name: determine name of credentials file
+        id: credentials_filename
+        run: |
+          echo "filename=$(echo '${{ steps.auth.outputs.credentials_cache_path }}' | sed 's/.*\/\(.*\)\.json/\1/')" >> $GITHUB_ENV
+      - name: cache gcloud credentials
+        uses: actions/cache/save@v3.3.1
+        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
+        with:
+          path: ${{ github.workspace }}/${{ steps.credentials_filename.outputs.filename }}.json
+          key: ${{ github.run_id }}-gcloud-credentials-${{ steps.credentials_filename.outputs.filename }}
