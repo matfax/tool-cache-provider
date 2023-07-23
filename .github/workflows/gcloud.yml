@@ -73,7 +73,7 @@ jobs:
       - name: determine name of credentials file
         id: credentials_filename
         run: |
-          echo "filename=$(echo '${{ steps.auth.outputs.credentials_cache_path }}' | sed 's/.*\/\(.*\)\.json/\1/')" >> $GITHUB_ENV
+          echo "filename=$(echo '${{ steps.auth.outputs.credentials_cache_path }}' | sed 's/.*\/\(.*\)\.json/\1/')" >> $GITHUB_OUTPUT
       - name: cache gcloud credentials
         uses: actions/cache/save@v3.3.1
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
