@@ -10,17 +10,10 @@ on:
         required: false
         type: string
         default: compute
-      credentials_file:
-        required: false
-        type: string
-        default: ''
     outputs:
       result:
         description: the supported versions within specified days
         value: ${{ jobs.execute.outputs.result }}
-      credentials_file:
-        description: the name of the gcloud credentials file
-        value: ${{ jobs.execute.outputs.credentials_file }}
 
 jobs:
   execute:
@@ -39,24 +32,9 @@ jobs:
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3
-      - name: restore cached credentials file
-        id: restore
-        if: inputs.credentials_file != ''
-        uses: actions/cache/restore@v3.3.1
-        with:
-          path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json.gpg
-          key: ${{ github.run_id }}-gcloud-credentials-${{ inputs.credentials_file }}
-      - name: decrypt credentials file
-        if: inputs.credentials_file != '' && steps.restore.outputs.cache-hit == 'true'
-        run: |
-          gpg -d --quiet --batch --yes --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ github.workspace }}/${{ inputs.credentials_file }}.json ${{ github.workspace }}/${{ inputs.credentials_file }}.json.gpg
-          echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
-          echo "GOOGLE_GHA_CREDS_PATH=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
-        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         with:
           workload_identity_provider: ${{ secrets.ID_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
@@ -80,18 +58,3 @@ jobs:
             ${{ steps.command.outputs.stderr }}
         with:
           script: core.setFailed(process.env.STDERR.split('\n').pop())
-      - name: encrypt credentials file
-        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
-        run: |
-          gpg -c --quiet --batch --yes --passphrase="${{ secrets.ENCRYPTION_PWD }}" ${{ steps.auth.outputs.credentials_file_path }}
-      - name: determine name of credentials file
-        id: credentials_filename
-        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
-        run: |
-          echo "filename=$(echo '${{ steps.auth.outputs.credentials_file_path }}' | sed 's/.*\/\(.*\)\.json/\1/')" >> $GITHUB_OUTPUT
-      - name: cache gcloud credentials
-        uses: actions/cache/save@v3.3.1
-        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
-        with:
-          path: ${{ github.workspace }}/${{ steps.credentials_filename.outputs.filename }}.json.gpg
-          key: ${{ github.run_id }}-gcloud-credentials-${{ steps.credentials_filename.outputs.filename }}
