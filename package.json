@@ -1,0 +1,22 @@
+{
+  "name": "tool-cache-provider",
+  "version": "1.0.0",
+  "description": "github-script for the tool-cache-provider gcloud workflow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matfax/tool-cache-provider.git"
+  },
+  "author": "matfax",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/matfax/tool-cache-provider/issues"
+  },
+  "homepage": "https://github.com/matfax/tool-cache-provider#readme",
+  "dependencies": {
+    "string-argv": "^0.3.2"
+  }
+}
