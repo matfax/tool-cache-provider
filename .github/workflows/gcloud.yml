@@ -64,6 +64,6 @@ jobs:
             }
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
             if (output.exitCode !== 0) {
-              core.setFailed(output.stdout)
+              core.setFailed(output.stderr)
             }
             core.setOutput('stdout', output.stdout)
