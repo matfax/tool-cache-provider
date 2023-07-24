@@ -50,6 +50,9 @@ jobs:
         if: inputs.credentials_file != '' && steps.restore.outputs.cache-hit == 'true'
         run: |
           gpg -d --quiet --batch --yes --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ github.workspace }}/${{ inputs.credentials_file }}.json ${{ github.workspace }}/${{ inputs.credentials_file }}.json.gpg
+          echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
+          echo "GOOGLE_GHA_CREDS_PATH=${{ github.workspace }}/${{ inputs.credentials_file }}.json" >> $GITHUB_ENV
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
