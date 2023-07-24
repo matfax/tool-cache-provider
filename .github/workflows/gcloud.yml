@@ -44,12 +44,12 @@ jobs:
         if: inputs.credentials_file != ''
         uses: actions/cache/restore@v3.3.1
         with:
-          path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
+          path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json.gpg
           key: ${{ github.run_id }}-gcloud-credentials-${{ inputs.credentials_file }}
       - name: decrypt credentials file
         if: inputs.credentials_file != '' && steps.restore.outputs.cache-hit == 'true'
         run: |
-          gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ github.workspace }}/${{ inputs.credentials_file }}.json ${{ github.workspace }}/${{ inputs.credentials_file }}.json
+          gpg -d --quiet --batch --yes --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ github.workspace }}/${{ inputs.credentials_file }}.json ${{ github.workspace }}/${{ inputs.credentials_file }}.json.gpg
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
@@ -80,7 +80,7 @@ jobs:
       - name: encrypt credentials file
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         run: |
-          gpg --quiet --batch --yes --symmetric --cipher-algo aes256 --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ steps.auth.outputs.credentials_file_path }} ${{ steps.auth.outputs.credentials_file_path }}
+          gpg -c --quiet --batch --yes --passphrase="${{ secrets.ENCRYPTION_PWD }}" ${{ steps.auth.outputs.credentials_file_path }}
       - name: determine name of credentials file
         id: credentials_filename
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
@@ -90,5 +90,5 @@ jobs:
         uses: actions/cache/save@v3.3.1
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         with:
-          path: ${{ github.workspace }}/${{ steps.credentials_filename.outputs.filename }}.json
+          path: ${{ github.workspace }}/${{ steps.credentials_filename.outputs.filename }}.json.gpg
           key: ${{ github.run_id }}-gcloud-credentials-${{ steps.credentials_filename.outputs.filename }}
