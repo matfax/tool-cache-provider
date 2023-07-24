@@ -46,6 +46,13 @@ jobs:
         with:
           path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
           key: ${{ github.run_id }}-gcloud-credentials-${{ inputs.credentials_file }}
+      - name: decrypt credentials file
+        uses: varchasvipandey/file-encryptor@1.0.11
+        if: inputs.credentials_file != '' && steps.restore.outputs.cache-hit == 'true'
+        with:
+          input-file-path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
+          encrypt-secret: ${{ secrets.ENCRYPTION_PWD }}
+          mode: decryption
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
@@ -73,6 +80,13 @@ jobs:
             ${{ steps.command.outputs.stderr }}
         with:
           script: core.setFailed(process.env.STDERR.split('\n').pop())
+      - name: encrypt credentials file
+        uses: varchasvipandey/file-encryptor@1.0.11
+        if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
+        with:
+          input-file-path: ${{ steps.auth.outputs.credentials_file_path }}
+          encrypt-secret: ${{ secrets.ENCRYPTION_PWD }}
+          mode: encryption
       - name: determine name of credentials file
         id: credentials_filename
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
