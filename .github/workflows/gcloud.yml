@@ -58,8 +58,11 @@ jobs:
             const { parseArgsStringToArgv } = require('string-argv')
             const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
-            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'])
+            try {
+              const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'])
+            } catch (error) {
+              core.setFailed(output.stderr)
+            }
             if (output.exitCode !== 0) {
-                const splitErr = output.stderr.split('\n')
-                core.setFailed(splitErr[splitErr.length - 3])
+              core.setFailed(output.stderr)
             }
