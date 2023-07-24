@@ -47,7 +47,7 @@ jobs:
           path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
           key: ${{ github.run_id }}-gcloud-credentials-${{ inputs.credentials_file }}
       - name: decrypt credentials file
-        uses: varchasvipandey/file-encryptor@1.0.11
+        uses: varchasvipandey/file-encryptor@v1.0.11
         if: inputs.credentials_file != '' && steps.restore.outputs.cache-hit == 'true'
         with:
           input-file-path: ${{ github.workspace }}/${{ inputs.credentials_file }}.json
@@ -81,7 +81,7 @@ jobs:
         with:
           script: core.setFailed(process.env.STDERR.split('\n').pop())
       - name: encrypt credentials file
-        uses: varchasvipandey/file-encryptor@1.0.11
+        uses: varchasvipandey/file-encryptor@v1.0.11
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         with:
           input-file-path: ${{ steps.auth.outputs.credentials_file_path }}
