@@ -47,7 +47,7 @@ jobs:
       - name: set up Node.js
         uses: actions/setup-node@v3.7.0
         with:
-          node-version: lts
+          node-version: lts/Hydrogen
           cache: npm
       - name: execute gcloud ${{ inputs.command }} job
         uses: actions/github-script@v6.4.1
