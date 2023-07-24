@@ -80,7 +80,7 @@ jobs:
       - name: encrypt credentials file
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
         run: |
-          gpg --quiet --batch --yes --encrypt --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ steps.auth.outputs.credentials_file_path }} ${{ steps.auth.outputs.credentials_file_path }}
+          gpg --quiet --batch --yes --symmetric --cipher-algo aes256 --passphrase="${{ secrets.ENCRYPTION_PWD }}" --output ${{ steps.auth.outputs.credentials_file_path }} ${{ steps.auth.outputs.credentials_file_path }}
       - name: determine name of credentials file
         id: credentials_filename
         if: inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true'
