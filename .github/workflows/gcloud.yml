@@ -60,5 +60,6 @@ jobs:
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'])
             if (output.exitCode !== 0) {
-              core.setFailed(output.stderr.split('\n').pop())
+                const splitErr = output.stderr.split('\n')
+                core.setFailed(splitErr[splitErr.length - 2])
             }
