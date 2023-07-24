@@ -53,16 +53,17 @@ jobs:
         run: npm ci
       - name: execute gcloud ${{ inputs.command }} job
         uses: actions/github-script@v6.4.1
+        id: command
         with:
           script: |
             const { parseArgsStringToArgv } = require('string-argv')
             const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
-            try {
-              const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'])
-              if (output.exitCode !== 0) {
-                core.setFailed(output.stdout)
-              }
-            } catch (error) {
-              core.setFailed(error.message)
+            const options = {
+                ignoreReturnCode: true
             }
+            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
+            if (output.exitCode !== 0) {
+              core.setFailed(output.stdout)
+            }
+            core.setOutput('stdout', output.stdout)
