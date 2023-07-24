@@ -49,6 +49,8 @@ jobs:
         with:
           node-version: lts/Hydrogen
           cache: npm
+      - name: install node dependencies
+        run: npm ci
       - name: execute gcloud ${{ inputs.command }} job
         uses: actions/github-script@v6.4.1
         with:
