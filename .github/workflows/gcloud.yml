@@ -61,5 +61,5 @@ jobs:
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'])
             if (output.exitCode !== 0) {
                 const splitErr = output.stderr.split('\n')
-                core.setFailed(splitErr[splitErr.length - 2])
+                core.setFailed(splitErr[splitErr.length - 3])
             }
