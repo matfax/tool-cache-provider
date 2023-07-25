@@ -43,6 +43,7 @@ jobs:
       contents: read
       id-token: write
     with:
+      add_service_account: true
       subcommand: instances create gh-${{ inputs.language }}-ubuntu-22 \
         --zone=europe-north1-b \
         --machine-type=t2d-standard-4 \
@@ -60,5 +61,4 @@ jobs:
         --labels=goog-ec-src=vm_add-gcloud \
         --reservation-affinity=any \
         --source-machine-image=gh-${{ inputs.language }}-ubuntu-22 \
-        --key-revocation-action-type=stop \
-        --service-account=${{ secrets.SERVICE_ACCOUNT }}
+        --key-revocation-action-type=stop
