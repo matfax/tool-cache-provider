@@ -60,4 +60,5 @@ jobs:
         --labels=goog-ec-src=vm_add-gcloud \
         --reservation-affinity=any \
         --source-machine-image=gh-${{ inputs.language }}-ubuntu-22 \
-        --key-revocation-action-type=stop
+        --key-revocation-action-type=stop \
+        --service-account=${{ secrets.SERVICE_ACCOUNT }}
