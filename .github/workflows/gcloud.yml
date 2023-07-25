@@ -9,7 +9,7 @@ on:
       command:
         required: false
         type: string
-        default: compute
+        default: beta compute
       expect_failure:
         required: false
         type: boolean
@@ -21,7 +21,7 @@ on:
 
 jobs:
   execute:
-    name: execute ${{ inputs.command }} job
+    name: execute ${{ inputs.command == 'beta compute' && 'compute' || inputs.command }} job
     environment: google cloud
     defaults:
       run:
