@@ -69,7 +69,7 @@ jobs:
                 ignoreReturnCode: true
             }
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
-            if (output.exitCode != 0 && !process.env.EXPECT_FAILURE) {
+            if (output.exitCode != 0 && process.env.EXPECT_FAILURE !== 'true') {
               core.setFailed(output.stderr)
             }
             core.setOutput('exitCode', output.exitCode)
