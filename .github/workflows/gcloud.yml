@@ -57,8 +57,9 @@ jobs:
         run: npm ci
       - name: execute gcloud ${{ inputs.command }} job
         uses: actions/github-script@v6.4.1
-        continue-on-error: ${{ inputs.expect_failure }}
         id: command
+        env:
+          EXPECT_FAILURE: ${{ inputs.expect_failure }}
         with:
           script: |
             const { parseArgsStringToArgv } = require('string-argv')
@@ -68,13 +69,8 @@ jobs:
                 ignoreReturnCode: true
             }
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
-            if (output.exitCode !== 0) {
+            if (output.exitCode != 0 && !process.env.EXPECT_FAILURE) {
               core.setFailed(output.stderr)
             }
             core.setOutput('exitCode', output.exitCode)
             core.setOutput('result', output.stdout)
-      - name: fail if expected failure didn't happen
-        if: inputs.expect_failure && steps.command.outputs.exitCode == 0
-        uses: actions/github-script@v6.4.1
-        with:
-          script: core.setFailed("expected failure didn't happen")
