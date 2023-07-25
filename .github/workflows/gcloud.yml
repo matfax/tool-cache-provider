@@ -71,7 +71,7 @@ jobs:
             const options = {
                 ignoreReturnCode: true
             }
-            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, --serviceAccountOpt, '--quiet', '--format="json"'], options)
+            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, ...serviceAccountOpt, '--quiet', '--format="json"'], options)
             if (output.exitCode != 0 && '${{ inputs.expect_failure }}' !== 'true') {
               core.setFailed(output.stderr)
             } else if (output.exitCode == 0 && '${{ inputs.expect_failure }}' === 'true') {
