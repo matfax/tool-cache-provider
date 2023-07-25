@@ -71,6 +71,8 @@ jobs:
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
             if (output.exitCode != 0 && process.env.EXPECT_FAILURE !== 'true') {
               core.setFailed(output.stderr)
+            } else if (output.exitCode == 0 && process.env.EXPECT_FAILURE === 'true') {
+              core.setFailed('expected failure but got success')
             }
             core.setOutput('exitCode', output.exitCode)
             core.setOutput('result', output.stdout)
