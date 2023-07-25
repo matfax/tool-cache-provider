@@ -10,6 +10,10 @@ on:
         required: false
         type: string
         default: compute
+      expect_failure:
+        required: false
+        type: boolean
+        default: false
     outputs:
       result:
         description: the supported versions within specified days
@@ -26,7 +30,7 @@ jobs:
       contents: read
       id-token: write
     outputs:
-      result: ${{ steps.command.outputs.stdout }}
+      result: ${{ steps.command.outputs.result }}
       credentials_file: ${{ (inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true') && steps.credentials_filename.outputs.filename || inputs.credentials_file }}
     runs-on: ubuntu-latest
     steps:
@@ -53,6 +57,7 @@ jobs:
         run: npm ci
       - name: execute gcloud ${{ inputs.command }} job
         uses: actions/github-script@v6.4.1
+        continue-on-error: ${{ inputs.expect_failure }}
         id: command
         with:
           script: |
@@ -66,4 +71,10 @@ jobs:
             if (output.exitCode !== 0) {
               core.setFailed(output.stderr)
             }
-            core.setOutput('stdout', output.stdout)
+            core.setOutput('exitCode', output.exitCode)
+            core.setOutput('result', output.stdout)
+      - name: fail if expected failure didn't happen
+        if: inputs.expect_failure && steps.command.outputs.exitCode == 0
+        uses: actions/github-script@v6.4.1
+        with:
+          script: core.setFailed("expected failure didn't happen")

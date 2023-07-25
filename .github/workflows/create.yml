@@ -11,8 +11,8 @@ on:
 concurrency: github-${{ inputs.language }}
 
 jobs:
-  check:
-    name: check availability
+  check-instance:
+    name: check instance availability
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
@@ -20,11 +20,10 @@ jobs:
       id-token: write
     with:
       subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
+      expect_failure: true
 
   check-backup:
-    name: check ${{ inputs.language }} runner backup
-    needs: check
-    if: failure()
+    name: check ${{ inputs.language }} backup
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
@@ -36,7 +35,9 @@ jobs:
 
   create:
     name: create ${{ inputs.language }} runner
-    needs: check-backup
+    needs:
+      - check-instance
+      - check-backup
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
