@@ -1,0 +1,63 @@
+name: create
+
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        required: true
+        description: runner label that identifies the installed language-specific tools
+        type: string
+
+concurrency: github-${{ inputs.language }}
+
+jobs:
+  check:
+    name: check availability
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
+
+  check-backup:
+    name: check ${{ inputs.language }} runner backup
+    needs: check
+    if: failure()
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      command: beta compute
+      subcommand: machine-images describe gh-${{ inputs.language }}-ubuntu-22
+
+  create:
+    name: create ${{ inputs.language }} runner
+    needs: check-backup
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      subcommand: instances create gh-${{ inputs.language }}-ubuntu-22 \
+        --zone=europe-north1-b \
+        --machine-type=t2d-standard-4 \
+        --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
+        --metadata=startup-script=/actions-runner/run.sh \
+        --no-restart-on-failure \
+        --maintenance-policy=TERMINATE \
+        --provisioning-model=SPOT \
+        --instance-termination-action=STOP \
+        --max-run-duration=7200s \
+        --min-cpu-platform=Automatic \
+        --shielded-secure-boot \
+        --shielded-vtpm \
+        --shielded-integrity-monitoring \
+        --labels=goog-ec-src=vm_add-gcloud \
+        --reservation-affinity=any \
+        --source-machine-image=gh-${{ inputs.language }}-ubuntu-22 \
+        --key-revocation-action-type=stop
