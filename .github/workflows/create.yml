@@ -44,6 +44,7 @@ jobs:
       contents: read
       id-token: write
     with:
+      command: beta compute
       subcommand: instances create gh-${{ inputs.language }}-ubuntu-22 \
         --zone=europe-north1-b \
         --machine-type=t2d-standard-4 \
