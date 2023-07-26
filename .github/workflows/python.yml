@@ -48,6 +48,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: initialize CodeQL
-        uses: github/codeql-action/init@v2.21.0
+        uses: github/codeql-action/init@v2.21.1
         with:
           languages: python
