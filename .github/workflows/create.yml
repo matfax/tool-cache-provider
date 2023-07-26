@@ -47,7 +47,6 @@ jobs:
         --zone=europe-north1-b \
         --machine-type=t2d-standard-4 \
         --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
-        --metadata=startup-script=/actions-runner/run.sh \
         --no-restart-on-failure \
         --maintenance-policy=TERMINATE \
         --provisioning-model=SPOT \
