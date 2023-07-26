@@ -43,7 +43,6 @@ jobs:
       contents: read
       id-token: write
     with:
-      add_service_account: true
       subcommand: instances create gh-${{ inputs.language }}-ubuntu-22 \
         --zone=europe-north1-b \
         --machine-type=t2d-standard-4 \

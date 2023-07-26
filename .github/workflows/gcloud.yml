@@ -14,10 +14,6 @@ on:
         required: false
         type: boolean
         default: false
-      add_service_account:
-        required: false
-        type: boolean
-        default: false
     outputs:
       result:
         description: the supported versions within specified days
@@ -67,11 +63,10 @@ jobs:
             const { parseArgsStringToArgv } = require('string-argv')
             const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
-            const serviceAccountOpt = '${{ inputs.add_service_account }}' === 'true' ? parseArgsStringToArgv('--service-account=${{ secrets.SERVICE_ACCOUNT }}') : []
             const options = {
                 ignoreReturnCode: true
             }
-            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, ...serviceAccountOpt, '--quiet', '--format="json"'], options)
+            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
             if (output.exitCode != 0 && '${{ inputs.expect_failure }}' !== 'true') {
               core.setFailed(output.stderr)
             } else if (output.exitCode == 0 && '${{ inputs.expect_failure }}' === 'true') {
