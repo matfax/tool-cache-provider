@@ -64,8 +64,8 @@ jobs:
             const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
             const options = {
-                ignoreReturnCode: true
-                silent: true
+                ignoreReturnCode: true,
+                silent: true,
             }
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
             if (output.exitCode != 0 && '${{ inputs.expect_failure }}' !== 'true') {
