@@ -53,11 +53,11 @@ jobs:
       id-token: write
     with:
       subcommand: os-config patch-jobs execute \
-        --instance-filter-name="zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22" \
-        --display-name="gh-${{ inputs.language }}-ubuntu-22-apt-upgrade" \
-        --duration="3600s" \
-        --reboot-config="default" \
-        --rollout-mode="zone-by-zone" \
+        --instance-filter-name=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 \
+        --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade \
+        --duration=3600s \
+        --reboot-config=default \
+        --rollout-mode=zone-by-zone \
         --rollout-disruption-budget-percent=25 \
         --description="apt upgrade on GitHub Runner Ubuntu 22.04 LTS with ${{ inputs.language }} tools"
 
