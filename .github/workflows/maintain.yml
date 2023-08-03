@@ -53,7 +53,7 @@ jobs:
       id-token: write
     with:
       subcommand: os-config patch-jobs execute \
-        --instance-filter-name=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 \
+        --instance-filter-names=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 \
         --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade \
         --duration=3600s \
         --reboot-config=default \
