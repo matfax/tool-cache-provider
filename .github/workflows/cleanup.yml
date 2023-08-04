@@ -1,0 +1,46 @@
+name: cleanup
+
+on:
+  workflow_call:
+    inputs:
+      prefix:
+        required: true
+        type: string
+
+jobs:
+  cleanup:
+    name: old version of ${{ github.event.inputs.prefix }}
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: none
+    runs-on:
+      - self-hosted
+      - provider
+      - ${{ inputs.language }}
+    environment: provider
+    steps:
+      - name: find and delete old runner version
+        id: execute
+        run: |
+          # Get the prefix from the workflow inputs
+          PREFIX=${{ github.event.inputs.prefix }}
+
+          # Find all versioned runner directories with the specified prefix and sort them
+          VERSIONED_FOLDERS=$(find /actions-runner -type d -name "$PREFIX.*" | sort)
+
+          # Count the number of versioned folders
+          NUM_VERSIONED_FOLDERS=$(echo "$VERSIONED_FOLDERS" | wc -l)
+
+          # Only proceed if there are more than 1 versioned folders
+          if [ $NUM_VERSIONED_FOLDERS -gt 1 ]; then
+            # Get the latest and oldest versions
+            OLDEST_VERSION=$(echo "$VERSIONED_FOLDERS" | head -n 1)
+
+            # Delete the oldest version
+            echo "Deleting old runner version: $OLDEST_VERSION"
+            rm -rf "$OLDEST_VERSION"
+          else
+            echo "There is only one versioned folder. Skipping deletion."
+          fi

@@ -43,9 +43,24 @@ jobs:
         run: |
           rm -rfv ~/.bash_history
 
+  cleanup-bin:
+    name: cleanup of old binaries on ${{ inputs.language }} runner
+    uses: ./.github/workflows/cleanup.yml
+    with:
+      prefix: bin
+
+  cleanup-externals:
+    name: cleanup of old externals on ${{ inputs.language }} runner
+    uses: ./.github/workflows/cleanup.yml
+    with:
+      prefix: externals
+
   patch:
     name: initiate patch job on ${{ inputs.language }} runner
-    needs: clean
+    needs:
+      - clean
+      - cleanup-bin
+      - cleanup-externals
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
