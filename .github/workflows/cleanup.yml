@@ -9,7 +9,7 @@ on:
 
 jobs:
   cleanup:
-    name: old version of ${{ github.event.inputs.prefix }}
+    name: old version of ${{ inputs.prefix }}
     defaults:
       run:
         shell: bash
@@ -25,7 +25,7 @@ jobs:
         id: execute
         run: |
           # Get the prefix from the workflow inputs
-          PREFIX=${{ github.event.inputs.prefix }}
+          PREFIX=${{ inputs.prefix }}
 
           # Find all versioned runner directories with the specified prefix and sort them
           VERSIONED_FOLDERS=$(find /actions-runner -type d -name "$PREFIX.*" | sort)
