@@ -41,6 +41,6 @@ jobs:
           go-version: ${{ matrix.golang-version }}
           check-latest: true
       - name: initialize CodeQL
-        uses: github/codeql-action/init@v2.21.2
+        uses: github/codeql-action/init@v2.21.3
         with:
           languages: go
