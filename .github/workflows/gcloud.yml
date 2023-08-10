@@ -14,6 +14,10 @@ on:
         required: false
         type: boolean
         default: false
+      expect_output:
+        required: false
+        type: boolean
+        default: true
     outputs:
       result:
         description: the supported versions within specified days
@@ -63,8 +67,7 @@ jobs:
             const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
             const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
             const options = {
-                ignoreReturnCode: true,
-                silent: true,
+                ignoreReturnCode: true
             }
             const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
             if (output.exitCode != 0 && '${{ inputs.expect_failure }}' !== 'true') {
@@ -74,3 +77,9 @@ jobs:
             }
             core.setOutput('exitCode', output.exitCode)
             core.setOutput('result', output.stdout)
+      - name: fail if required output is missing
+        if: (inputs.expect_output === 'true' && inputs.expect_failure !== 'true') && steps.command.outputs.result === ''
+        uses: actions/github-script@v6.4.1
+        with:
+          script: |
+            core.setFailed('expected output but got nothing')
