@@ -1,14 +1,6 @@
 name: create
 
-on:
-  workflow_dispatch:
-    inputs:
-      language:
-        required: true
-        description: runner label that identifies the installed language-specific tools
-        type: string
-
-concurrency: github-${{ inputs.language }}
+on: workflow_dispatch
 
 jobs:
   check-instance:
@@ -19,21 +11,21 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
+      subcommand: instances describe gh-ubuntu-22 --zone=europe-north1-b
       expect_failure: true
 
   check-backup:
-    name: check ${{ inputs.language }} backup
+    name: check backup availability
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
       contents: read
       id-token: write
     with:
-      subcommand: machine-images describe gh-${{ inputs.language }}-ubuntu-22
+      subcommand: machine-images list --limit=1 --sort-by=~NAME --filter=gh-ubuntu-22
 
   create:
-    name: create ${{ inputs.language }} runner
+    name: create instance
     needs:
       - check-instance
       - check-backup
@@ -43,7 +35,7 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances create gh-${{ inputs.language }}-ubuntu-22 \
+      subcommand: instances create gh-ubuntu-22 \
         --zone=europe-north1-b \
         --machine-type=t2d-standard-4 \
         --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
@@ -58,5 +50,5 @@ jobs:
         --shielded-integrity-monitoring \
         --labels=goog-ec-src=vm_add-gcloud \
         --reservation-affinity=any \
-        --source-machine-image=gh-${{ inputs.language }}-ubuntu-22 \
-        --key-revocation-action-type=stop
+        --key-revocation-action-type=stop \
+        --source-machine-image=${{ fromJSON(needs.check-backup.outputs.result)[0].name }}
