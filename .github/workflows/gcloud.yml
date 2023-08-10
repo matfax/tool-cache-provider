@@ -31,7 +31,6 @@ jobs:
       id-token: write
     outputs:
       result: ${{ steps.command.outputs.result }}
-      credentials_file: ${{ (inputs.credentials_file == '' || steps.restore.outputs.cache-hit != 'true') && steps.credentials_filename.outputs.filename || inputs.credentials_file }}
     runs-on: ubuntu-latest
     steps:
       - name: check out repository
