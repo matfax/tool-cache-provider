@@ -1,8 +1,8 @@
 {
-  "name": "deploy-github-runner",
+  "name": "gcloud",
   "version": "1.0.0",
-  "description": "deploy github runner from tool cache provider",
-  "main": "src/action.js",
+  "description": "gcloud command action for the tool-cache-provider",
+  "main": "action.js",
   "scripts": {
     "test": "echo 'Error: no test specified'"
   },
@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/matfax/tool-cache-provider",
   "dependencies": {
-    "@actions/core": "~1.10.0",
-    "@actions/exec": "~1.1.1"
+    "string-argv": "~0.3.2"
   }
 }

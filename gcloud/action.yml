@@ -1,0 +1,27 @@
+name: gcloud command
+description: execute the provided subcommand on gcloud
+
+runs:
+  using: node16
+  main: action.js
+
+inputs:
+  subcommand:
+    required: true
+    description: the gcloud subcommand to execute
+  command:
+    required: false
+    description: the gcloud command to execute
+    default: beta compute
+  expect_failure:
+    required: false
+    description: the action is supposed to succeed on failure and fail on success
+    default: 'false'
+  expect_output:
+    required: false
+    description: the output should not be empty
+    default: 'true'
+
+outputs:
+  result:
+    description: the resulting json of the executed command
