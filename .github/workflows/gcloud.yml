@@ -63,27 +63,21 @@ jobs:
         id: command
         with:
           script: |
-            const { parseArgsStringToArgv } = require('string-argv');
-  
-            const commandArgs = parseArgsStringToArgv(process.env.INPUT_COMMAND);
-            const subCommandArgs = parseArgsStringToArgv(process.env.INPUT_SUBCOMMAND);
-            
+            const { parseArgsStringToArgv } = require('string-argv')
+            const commandArgs = parseArgsStringToArgv('${{ inputs.command }}')
+            const subCommandArgs = parseArgsStringToArgv('${{ inputs.subcommand }}')
             const options = {
-              ignoreReturnCode: true,
-              silent: true,
-            };
-              
-            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options);
-              
-            if (output.exitCode !== 0 && process.env.INPUT_EXPECT_FAILURE !== 'true') {
-              core.setFailed(output.stderr);
-            } else if (output.exitCode === 0 && process.env.INPUT_EXPECT_FAILURE === 'true') {
-              core.setFailed('Expected failure but got success');
+                ignoreReturnCode: true,
+                silent: true,
             }
-            
-            core.setOutput('exitCode', output.exitCode);
-            core.setOutput('result', output.stdout);
-
+            const output = await exec.getExecOutput('gcloud', [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"'], options)
+            if (output.exitCode != 0 && '${{ inputs.expect_failure }}' !== 'true') {
+              core.setFailed(output.stderr)
+            } else if (output.exitCode == 0 && '${{ inputs.expect_failure }}' === 'true') {
+              core.setFailed('expected failure but got success')
+            }
+            core.setOutput('exitCode', output.exitCode)
+            core.setOutput('result', output.stdout)
       - name: fail if required output is missing
         if: inputs.expect_output && !inputs.expect_failure && steps.command.outputs.result == ''
         uses: actions/github-script@v6.4.1
