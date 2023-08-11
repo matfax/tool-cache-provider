@@ -35,20 +35,20 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances create gh-ubuntu-22 \
-        --zone=europe-north1-b \
-        --machine-type=t2d-standard-4 \
-        --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default \
-        --no-restart-on-failure \
-        --maintenance-policy=TERMINATE \
-        --provisioning-model=SPOT \
-        --instance-termination-action=STOP \
-        --max-run-duration=7200s \
-        --min-cpu-platform=Automatic \
-        --shielded-secure-boot \
-        --shielded-vtpm \
-        --shielded-integrity-monitoring \
-        --labels=goog-ec-src=vm_add-gcloud \
-        --reservation-affinity=any \
-        --key-revocation-action-type=stop \
-        --source-machine-image=${{ needs.check-backup.outputs.result && fromJSON(needs.check-backup.outputs.result)[0].name }}
+      subcommand: instances create gh-ubuntu-22
+        --zone=europe-north1-b
+        --machine-type=t2d-standard-4
+        --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
+        --no-restart-on-failure
+        --maintenance-policy=TERMINATE
+        --provisioning-model=SPOT
+        --instance-termination-action=STOP
+        --max-run-duration=7200s
+        --min-cpu-platform=Automatic
+        --shielded-secure-boot
+        --shielded-vtpm
+        --shielded-integrity-monitoring
+        --labels=goog-ec-src=vm_add-gcloud
+        --reservation-affinity=any
+        --key-revocation-action-type=stop
+        --source-machine-image=${{ needs.check-backup.outputs.result[0].name }}
