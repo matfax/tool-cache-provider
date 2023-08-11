@@ -51,6 +51,13 @@ jobs:
           skip_install: true
           version: ''
           project_id: github-matfax
+      - name: set up latest Node.js LTS
+        uses: actions/setup-node@v3.7.0
+        with:
+          node-version: lts/Hydrogen
+          cache: npm
+      - name: install node dependencies
+        run: npm ci
       - name: execute gcloud ${{ inputs.command }} job
         id: command
         uses: ./gcloud
