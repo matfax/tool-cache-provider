@@ -2,7 +2,7 @@ name: gcloud command
 description: execute the provided subcommand on gcloud
 
 runs:
-  using: node16
+  using: node18
   main: action.js
 
 inputs:
