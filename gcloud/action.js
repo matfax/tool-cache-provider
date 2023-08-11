@@ -28,8 +28,11 @@ const main = async () => {
 
     core.setOutput('exitCode', output.exitCode);
     core.setOutput('result', output.stdout);
+
+    return output.stdout
 }
 
-main().then(() => {
+main().then(value => {
+    core.info(value)
     core.info('gcloud command action completed')
 })
