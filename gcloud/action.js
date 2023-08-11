@@ -18,7 +18,7 @@ const main = async () => {
 
     if (output.exitCode !== 0) {
         if (!expectFailure) {
-            core.setFailed(output.stderr);
+            core.setFailed(output.stderr.split('\n').pop());
         }
     } else if (expectFailure) {
         core.setFailed('expected failure but got success');
@@ -29,7 +29,7 @@ const main = async () => {
     core.setOutput('exitCode', output.exitCode);
     core.setOutput('result', output.stdout);
 
-    return output.stdout
+    return output.stderr
 }
 
 main().then(value => {
