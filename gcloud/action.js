@@ -19,11 +19,11 @@ const main = async () => {
     if (output.exitCode !== 0) {
         if (!expectFailure) {
             core.setFailed(output.stderr);
-        } else if (expectOutput && output.stdout === '') {
-            core.setFailed('expected output but got nothing');
         }
     } else if (expectFailure) {
         core.setFailed('expected failure but got success');
+    } else if (expectOutput && output.stdout === '') {
+        core.setFailed('expected output but got nothing');
     }
 
     core.setOutput('exitCode', output.exitCode);
