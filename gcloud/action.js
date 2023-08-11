@@ -9,7 +9,13 @@ const main = async () => {
         ignoreReturnCode: true,
         silent: true,
     }
-    const args = [...commandArgs, ...subCommandArgs, '--quiet', '--format="json"']
+    const args = [
+        ...commandArgs,
+        ...subCommandArgs,
+        '--quiet',
+        '--format="json"',
+        '--verbosity=info'
+    ]
 
     const output = await getExecOutput('gcloud', args, options)
 
