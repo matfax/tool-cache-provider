@@ -51,4 +51,4 @@ jobs:
         --labels=goog-ec-src=vm_add-gcloud
         --reservation-affinity=any
         --key-revocation-action-type=stop
-        --source-machine-image=${{ needs.check-backup.outputs.result[0].name }}
+        --source-machine-image=${{ fromJSON(needs.check-backup.outputs.result)[0].name }}
