@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: fail if patching job didn't succeed
-        if: fromJSON(needs.check.outputs.result).state != "SUCCEEDED"
+        if: fromJSON(needs.patch.outputs.result).state != "SUCCEEDED"
         uses: actions/github-script@v6.4.1
         with:
           script: core.setFailed("patch job failed with status ${{ fromJSON(needs.check.outputs.result).state }}")
