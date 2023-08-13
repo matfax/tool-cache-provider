@@ -21,5 +21,21 @@ jobs:
         --rollout-mode=zone-by-zone
         --rollout-disruption-budget-percent=25
         --description="software update and cleanup on GitHub Runner Ubuntu 22.04 LTS"
-        --pre-patch-linux-executable="/opt/updates/cleanup"
-        --post-patch-linux-executable="/opt/updates/snap"
+        --pre-patch-linux-executable=/opt/updates/cleanup
+        --post-patch-linux-executable=/opt/updates/snap
+
+  verify:
+    name: verify patching status
+    needs: patch
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+    steps:
+      - name: fail if patching job didn't succeed
+        if: fromJSON(needs.check.outputs.result).state != "SUCCEEDED"
+        uses: actions/github-script@v6.4.1
+        with:
+          script: core.setFailed("patch job failed with status ${{ fromJSON(needs.check.outputs.result).state }}")
