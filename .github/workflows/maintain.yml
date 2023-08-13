@@ -21,7 +21,6 @@ jobs:
         --rollout-mode=zone-by-zone
         --rollout-disruption-budget-percent=25
         --description="software update and cleanup on GitHub Runner Ubuntu 22.04 LTS"
-        --pre-patch-linux-executable=/opt/updates/cleanup
         --post-patch-linux-executable=/opt/updates/snap
 
   verify:
