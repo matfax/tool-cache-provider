@@ -1,0 +1,23 @@
+{
+  "name": "cleanup",
+  "version": "1.0.0",
+  "description": "actions tools cleanup command action for the tool-cache-provider",
+  "main": "action.js",
+  "scripts": {
+    "test": "echo 'Error: no test specified'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matfax/tool-cache-provider.git"
+  },
+  "author": "matfax",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/matfax/tool-cache-provider/issues"
+  },
+  "homepage": "https://github.com/matfax/tool-cache-provider",
+  "dependencies": {
+    "@actions/core": "~1.10.0",
+    "@actions/io": "~1.1.3"
+  }
+}

@@ -2,6 +2,8 @@ name: create
 
 on: workflow_dispatch
 
+concurrency: github
+
 jobs:
   check-instance:
     name: check instance availability

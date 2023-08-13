@@ -1,95 +1,25 @@
 name: maintenance
 
-on:
-  workflow_dispatch:
-    inputs:
-      language:
-        required: true
-        description: identity of the runner label and codeQL language
-        type: string
+on: workflow_dispatch
 
-concurrency: github-${{ inputs.language }}
+concurrency: github
 
 jobs:
-  clean:
-    name: clean up ${{ inputs.language }} runner
-    permissions:
-      contents: none
-    runs-on:
-      - self-hosted
-      - provider
-      - ${{ inputs.language }}
-    environment: provider
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: delete temporary files in the actions-runner path
-        run: |
-          find /actions-runner/_diag -type f -mmin +5 -delete || true
-          rm -rfv /actions-runner/_work/_tool/*
-          rm -rfv /actions-runner/_work/_actions/*
-      - name: clear user cache
-        run: |
-          find ~/.cache/*/* -mmin +5 -delete || true
-      - name: clear user lib
-        run: |
-          rm -rfv ~/.local/lib
-      - name: clear go cache
-        if: inputs.language == 'go'
-        run: |
-          rm -rfv ~/go
-      - name: clear bash history
-        run: |
-          rm -rfv ~/.bash_history
-
-  cleanup-bin:
-    name: cleanup of old binaries on ${{ inputs.language }} runner
-    uses: ./.github/workflows/cleanup.yml
-    with:
-      prefix: bin
-
-  cleanup-externals:
-    name: cleanup of old externals on ${{ inputs.language }} runner
-    uses: ./.github/workflows/cleanup.yml
-    with:
-      prefix: externals
-
   patch:
-    name: initiate patch job on ${{ inputs.language }} runner
-    needs:
-      - clean
-      - cleanup-bin
-      - cleanup-externals
+    name: initiate cleanup and patching
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
       contents: read
       id-token: write
     with:
-      subcommand: os-config patch-jobs execute \
-        --instance-filter-names=zones/europe-north1-b/instances/gh-${{ inputs.language }}-ubuntu-22 \
-        --display-name=gh-${{ inputs.language }}-ubuntu-22-apt-upgrade \
-        --duration=3600s \
-        --reboot-config=default \
-        --rollout-mode=zone-by-zone \
-        --rollout-disruption-budget-percent=25 \
-        --description="apt upgrade on GitHub Runner Ubuntu 22.04 LTS with ${{ inputs.language }} tools"
-
-  update:
-    name: update snaps on ${{ inputs.language }} runner
-    needs: patch
-    permissions:
-      contents: none
-    runs-on:
-      - self-hosted
-      - provider
-      - ${{ inputs.language }}
-    environment: provider
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: update nodejs snap
-        run: |
-          sudo snap refresh node --classic
+      subcommand: os-config patch-jobs execute
+        --instance-filter-names=zones/europe-north1-b/instances/gh-ubuntu-22
+        --display-name=gh-ubuntu-22-upgrade
+        --duration=3600s
+        --reboot-config=default
+        --rollout-mode=zone-by-zone
+        --rollout-disruption-budget-percent=25
+        --description="software update and cleanup on GitHub Runner Ubuntu 22.04 LTS"
+        --pre-patch-linux-executable="/opt/updates/cleanup"
+        --post-patch-linux-executable="/opt/updates/snap"

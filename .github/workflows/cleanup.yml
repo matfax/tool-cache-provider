@@ -3,13 +3,16 @@ name: cleanup
 on:
   workflow_call:
     inputs:
-      prefix:
+      language:
         required: true
+        description: runner label that identifies the installed language-specific tools
         type: string
+
+concurrency: github-${{ inputs.language }}
 
 jobs:
   cleanup:
-    name: old version of ${{ inputs.prefix }}
+    name: ${{ inputs.language }} runner tools
     defaults:
       run:
         shell: bash
@@ -21,26 +24,25 @@ jobs:
       - ${{ inputs.language }}
     environment: provider
     steps:
-      - name: find and delete old runner version
-        id: execute
+      - name: delete temporary files in the action runner tools path
         run: |
-          # Get the prefix from the workflow inputs
-          PREFIX=${{ inputs.prefix }}
-
-          # Find all versioned runner directories with the specified prefix and sort them
-          VERSIONED_FOLDERS=$(find /actions-runner -type d -name "$PREFIX.*" | sort)
-
-          # Count the number of versioned folders
-          NUM_VERSIONED_FOLDERS=$(echo "$VERSIONED_FOLDERS" | wc -l)
-
-          # Only proceed if there are more than 1 versioned folders
-          if [ $NUM_VERSIONED_FOLDERS -gt 1 ]; then
-            # Get the latest and oldest versions
-            OLDEST_VERSION=$(echo "$VERSIONED_FOLDERS" | head -n 1)
-
-            # Delete the oldest version
-            echo "Deleting old runner version: $OLDEST_VERSION"
-            rm -rf "$OLDEST_VERSION"
-          else
-            echo "There is only one versioned folder. Skipping deletion."
-          fi
+          find /actions-runner/_diag -type f -mmin +5 -delete || true
+          rm -rfv /actions-runner/_work/_tool/*
+          rm -rfv /actions-runner/_work/_actions/*
+      - name: check out repository
+        uses: actions/checkout@v3.5.3
+      - name: set up latest Node.js LTS
+        uses: actions/setup-node@v3.7.0
+        with:
+          node-version: lts/Hydrogen
+          cache: npm
+      - name: install node dependencies
+        run: npm ci
+      - name: clean up old bin tools
+        uses: ./cleanup
+        with:
+          prefix: bin
+      - name: clean up old externals tools
+        uses: ./cleanup
+        with:
+          prefix: externals
