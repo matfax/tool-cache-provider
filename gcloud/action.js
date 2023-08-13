@@ -35,10 +35,10 @@ const main = async () => {
     core.setOutput('exitCode', output.exitCode);
     core.setOutput('result', output.stdout);
 
-    return output.stderr
+    return output
 }
 
 main().then(value => {
-    core.info(value)
-    core.info('gcloud command action completed')
+    core.info(value.stderr)
+    core.info(`gcloud command action completed with status code ${value.exitCode}`)
 })
