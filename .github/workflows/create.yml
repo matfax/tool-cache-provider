@@ -28,7 +28,7 @@ jobs:
       subcommand: machine-images list
         --limit=1
         --sort-by=~NAME
-        --filter="name~'${{ vars.INSTANCE }}-r[0-9]+' AND status=READY"
+        --filter="name:${{ vars.INSTANCE }}-r*"
 
   create:
     name: create instance
