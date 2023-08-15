@@ -18,6 +18,14 @@ on:
         required: false
         type: boolean
         default: true
+      location_param:
+        required: false
+        type: string
+        default: ''
+      zone_param:
+        required: false
+        type: string
+        default: ''
     outputs:
       result:
         description: the resulting json of the executed command
@@ -66,3 +74,7 @@ jobs:
           command: ${{ inputs.command }}
           expect_failure: ${{ inputs.expect_failure }}
           expect_output: ${{ inputs.expect_output }}
+          location: ${{ vars.location }}
+          zone: ${{ vars.zone }}
+          location_name: ${{ inputs.location_param }}
+          zone_name: ${{ inputs.zone_param }}

@@ -5,6 +5,8 @@ const { parseArgsStringToArgv } = require('string-argv')
 const main = async () => {
     const commandArgs = parseArgsStringToArgv(core.getInput('command'))
     const subCommandArgs = parseArgsStringToArgv(core.getInput('subcommand'))
+    const zoneOpt = core.getInput('zone_name') !== '' ? [`--${core.getInput('zone_name')}=${core.getInput('zone')}`] : []
+    const locationOpt = core.getInput('location_name') !== '' ? [`--${core.getInput('location_name')}=${core.getInput('location')}`] : []
     const options = {
         ignoreReturnCode: true,
         silent: true,
@@ -12,6 +14,8 @@ const main = async () => {
     const args = [
         ...commandArgs,
         ...subCommandArgs,
+        ...zoneOpt,
+        ...locationOpt,
         '--quiet',
         '--format="json"',
         '--verbosity=info'

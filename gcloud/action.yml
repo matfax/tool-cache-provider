@@ -21,6 +21,22 @@ inputs:
     required: false
     description: the output should not be empty
     default: 'true'
+  location:
+    required: false
+    description: the location of the gcloud command
+    default: ''
+  location_name:
+    required: false
+    description: the parameter name that accesses the location
+    default: ''
+  zone:
+    required: false
+    description: the zone of the gcloud command
+    default: ''
+  zone_name:
+    required: false
+    description: the parameter name that accesses the zone
+    default: ''
 
 outputs:
   result:
