@@ -39,10 +39,10 @@ jobs:
     environment: scheduler
     runs-on: ubuntu-latest
     steps:
-      - name: invoke maintain workflow
+      - name: invoke maintenance workflow
         uses: aurelien-baudet/workflow-dispatch@v2.1.1
         with:
-          workflow: maintain
+          workflow: maintenance
           token: ${{ secrets.GH_TOKEN }}
 
   backup:
