@@ -37,7 +37,7 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: machine-images create gh-ubuntu-22-${{ dateFormat(now(), 'YYMMDDHHmm') }}
+      subcommand: machine-images create gh-ubuntu-22-${{ github.run_id }}
         --source-instance=gh-ubuntu-22
         --source-instance-zone=europe-north1-b
         --storage-location=europe-north1
