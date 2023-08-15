@@ -1,0 +1,80 @@
+name: schedule
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/schedule.yml'
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+concurrency: scheduler
+
+jobs:
+  create:
+    name: create instance
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    environment: scheduler
+    runs-on: ubuntu-latest
+    steps:
+      - name: invoke create workflow
+        uses: aurelien-baudet/workflow-dispatch@v2.1.1
+        with:
+          workflow: create
+          token: ${{ secrets.GH_TOKEN }}
+
+  maintain:
+    name: maintain instance
+    needs: create
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    environment: scheduler
+    runs-on: ubuntu-latest
+    steps:
+      - name: invoke maintain workflow
+        uses: aurelien-baudet/workflow-dispatch@v2.1.1
+        with:
+          workflow: maintain
+          token: ${{ secrets.GH_TOKEN }}
+
+  backup:
+    name: backup instance
+    needs: maintain
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    environment: scheduler
+    runs-on: ubuntu-latest
+    steps:
+      - name: invoke backup workflow
+        uses: aurelien-baudet/workflow-dispatch@v2.1.1
+        with:
+          workflow: backup
+          token: ${{ secrets.GH_TOKEN }}
+
+  delete:
+    name: delete instance
+    needs: backup
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    environment: scheduler
+    runs-on: ubuntu-latest
+    steps:
+      - name: invoke delete workflow
+        uses: aurelien-baudet/workflow-dispatch@v2.1.1
+        with:
+          workflow: delete
+          token: ${{ secrets.GH_TOKEN }}
