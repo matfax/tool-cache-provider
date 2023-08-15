@@ -30,3 +30,25 @@ jobs:
       subcommand: machine-images create ${{ vars.INSTANCE }}-r${{ github.run_number }}
         --source-instance=${{ vars.INSTANCE }}
         --description="GitHub Runner on ${{ vars.SYSTEM_DESCRIPTION }}"
+
+  verify:
+    name: verify backup
+    needs: backup
+    permissions:
+      contents: none
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+    steps:
+      - name: fail if backup didn't succeed
+        if: fromJSON(needs.backup.outputs.result).status != 'READY'
+        uses: actions/github-script@v6.4.1
+        with:
+          script: core.setFailed("backup completed with unexpected status ${{ fromJSON(needs.check.outputs.result).status }}")
+      - name: check backup size
+        uses: actions/github-script@v6.4.1
+        with:
+          script: |
+            const sizeInMB = fromJSON(needs.backup.outputs.result).totalStorageBytes / 1024 / 1024
+            core.info(`backup size is ${sizeInMB} MB`)
