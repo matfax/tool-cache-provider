@@ -42,13 +42,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: fail if backup didn't succeed
-        if: fromJSON(needs.backup.outputs.result).status != 'READY'
+        if: fromJSON(needs.backup.outputs.result)[0].status != 'READY'
         uses: actions/github-script@v6.4.1
         with:
-          script: core.setFailed("backup completed with unexpected status ${{ fromJSON(needs.backup.outputs.result).status }}")
+          script: core.setFailed("backup completed with unexpected status ${{ fromJSON(needs.backup.outputs.result)[0].status }}")
       - name: check backup size
         uses: actions/github-script@v6.4.1
         with:
           script: |
-            const sizeInMB = ${{ fromJSON(needs.backup.outputs.result).totalStorageBytes }} / 1024 / 1024
+            const sizeInMB = ${{ fromJSON(needs.backup.outputs.result)[0].totalStorageBytes }} / 1024 / 1024
             core.info(`backup size is ${sizeInMB} MB`)
