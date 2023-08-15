@@ -13,14 +13,15 @@ jobs:
       contents: read
       id-token: write
     with:
+      zone_param: instance-filter-zones
       subcommand: os-config patch-jobs execute
-        --instance-filter-names=zones/europe-north1-b/instances/gh-ubuntu-22
-        --display-name=gh-ubuntu-22-upgrade
-        --duration=3600s
+        --instance-filter-name-prefixes=${{ vars.INSTANCE }}
+        --display-name=${{ vars.INSTANCE }}-upgrade
+        --duration=600s
         --reboot-config=default
         --rollout-mode=zone-by-zone
         --rollout-disruption-budget-percent=25
-        --description="software update and cleanup on GitHub Runner Ubuntu 22.04 LTS"
+        --description="software update and cleanup on ${{ vars.SYSTEM_DESCRIPTION }}"
         --post-patch-linux-executable=/opt/updates/snap
 
   verify:

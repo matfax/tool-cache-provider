@@ -13,7 +13,8 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances describe gh-ubuntu-22 --zone=europe-north1-b
+      zone_param: zone
+      subcommand: instances describe ${{ vars.INSTANCE }}
       expect_failure: true
 
   check-backup:
@@ -24,7 +25,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: machine-images list --limit=1 --sort-by=~NAME --filter=gh-ubuntu-22
+      subcommand: machine-images list
+        --limit=1
+        --sort-by=~NAME
+        --filter="name~'${{ vars.INSTANCE }}-r[0-9]+' AND status=READY"
 
   create:
     name: create instance
@@ -37,8 +41,8 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances create gh-ubuntu-22
-        --zone=europe-north1-b
+      zone_param: zone
+      subcommand: instances create ${{ vars.INSTANCE }}
         --machine-type=t2d-standard-4
         --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
         --no-restart-on-failure
