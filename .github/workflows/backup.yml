@@ -13,7 +13,7 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: instances describe gh-ubuntu-22 --zone=${{ env.ZONE }}
+      subcommand: instances describe gh-ubuntu-22 --zone=${{ vars.ZONE }}
 
   backup:
     name: backup instance
@@ -26,6 +26,6 @@ jobs:
     with:
       subcommand: machine-images create gh-ubuntu-22-r${{ github.run_number }}
         --source-instance=gh-ubuntu-22
-        --source-instance-zone=${{ env.ZONE }}
-        --storage-location=europe-north1
+        --source-instance-zone=${{ vars.ZONE }}
+        --storage-location=${{ vars.LOCATION }}
         --description="GitHub Runner on Ubuntu 22.04 LTS"
