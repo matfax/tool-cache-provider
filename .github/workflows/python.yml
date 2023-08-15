@@ -1,15 +1,8 @@
 name: python tool cache
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/python.yml'
-      - '**/*.py'
-      - '**/pyproject.toml'
-  workflow_dispatch:
+on: workflow_dispatch
 
-concurrency: github-python
+concurrency: github
 
 jobs:
   prepare:

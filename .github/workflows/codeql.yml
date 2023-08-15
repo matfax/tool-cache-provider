@@ -8,7 +8,7 @@ on:
         description: identity of the runner label and codeQL language
         type: string
 
-concurrency: github-${{ inputs.language }}
+concurrency: github
 
 jobs:
   clear:

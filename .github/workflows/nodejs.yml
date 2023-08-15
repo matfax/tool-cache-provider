@@ -1,13 +1,8 @@
 name: nodejs tool cache
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/nodejs.yml'
-  workflow_dispatch:
-  schedule:
-    - cron: '0 8 * * *'
+on: workflow_dispatch
+
+concurrency: github
 
 jobs:
   prepare:
@@ -26,7 +21,10 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    runs-on: [self-hosted, provider]
+    runs-on:
+      - self-hosted
+      - provider
+      - nodejs
     defaults:
       run:
         shell: bash
