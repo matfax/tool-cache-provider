@@ -1,0 +1,29 @@
+name: delete
+
+on: workflow_dispatch
+
+concurrency: github
+
+jobs:
+  check:
+    name: check instance
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      zone_param: zone
+      subcommand: instances describe ${{ vars.INSTANCE }}
+
+  delete:
+    name: delete instance
+    needs: check
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      zone_param: zone
+      subcommand: instances delete ${{ vars.INSTANCE }}
