@@ -45,7 +45,7 @@ jobs:
         if: fromJSON(needs.backup.outputs.result).status != 'READY'
         uses: actions/github-script@v6.4.1
         with:
-          script: core.setFailed("backup completed with unexpected status ${{ fromJSON(needs.check.outputs.result).status }}")
+          script: core.setFailed("backup completed with unexpected status ${{ fromJSON(needs.backup.outputs.result).status }}")
       - name: check backup size
         uses: actions/github-script@v6.4.1
         with:
