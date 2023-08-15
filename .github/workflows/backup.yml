@@ -15,22 +15,9 @@ jobs:
     with:
       subcommand: instances describe gh-ubuntu-22 --zone=europe-north1-b
 
-  delete:
-    name: delete existing machine image
-    needs: check
-    uses: ./.github/workflows/gcloud.yml
-    secrets: inherit
-    permissions:
-      contents: read
-      id-token: write
-    with:
-      subcommand: machine-images delete gh-ubuntu-22
-
   backup:
     name: backup instance
-    needs:
-      - check
-      - delete
+    needs: check
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
