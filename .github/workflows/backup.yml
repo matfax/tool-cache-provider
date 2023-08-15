@@ -50,5 +50,5 @@ jobs:
         uses: actions/github-script@v6.4.1
         with:
           script: |
-            const sizeInMB = fromJSON(needs.backup.outputs.result).totalStorageBytes / 1024 / 1024
+            const sizeInMB = ${{ fromJSON(needs.backup.outputs.result).totalStorageBytes }} / 1024 / 1024
             core.info(`backup size is ${sizeInMB} MB`)
