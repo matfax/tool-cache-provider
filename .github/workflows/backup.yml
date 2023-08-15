@@ -1,28 +1,22 @@
 name: backup
 
-on:
-  workflow_dispatch:
-    inputs:
-      language:
-        required: true
-        description: runner label that identifies the installed language-specific tools
-        type: string
+on: workflow_dispatch
 
-concurrency: github-${{ inputs.language }}
+concurrency: github
 
 jobs:
   check:
-    name: check ${{ inputs.language }} runner
+    name: check instance
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
       contents: read
       id-token: write
     with:
-      subcommand: instances describe gh-${{ inputs.language }}-ubuntu-22 --zone=europe-north1-b
+      subcommand: instances describe gh-ubuntu-22 --zone=europe-north1-b
 
   delete:
-    name: delete existing ${{ inputs.language }} machine image
+    name: delete existing machine image
     needs: check
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
@@ -30,10 +24,10 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: machine-images delete gh-${{ inputs.language }}-ubuntu-22
+      subcommand: machine-images delete gh-ubuntu-22
 
   backup:
-    name: backup ${{ inputs.language }} runner
+    name: backup instance
     needs:
       - check
       - delete
@@ -43,4 +37,8 @@ jobs:
       contents: read
       id-token: write
     with:
-      subcommand: machine-images create gh-${{ inputs.language }}-ubuntu-22 --source-instance=gh-${{ inputs.language }}-ubuntu-22 --source-instance-zone=europe-north1-b --storage-location=europe-north1 --description="GitHub Runner on Ubuntu 22.04 LTS with ${{ inputs.language }} tools"
+      subcommand: machine-images create gh-ubuntu-22-${{ dateFormat(now(), 'YYMMDDHHmm') }}
+        --source-instance=gh-ubuntu-22
+        --source-instance-zone=europe-north1-b
+        --storage-location=europe-north1
+        --description="GitHub Runner on Ubuntu 22.04 LTS"
