@@ -30,7 +30,7 @@ jobs:
           rm -rfv /actions-runner/_work/_tool/*
           rm -rfv /actions-runner/_work/_actions/*
       - name: check out repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: set up latest Node.js LTS
         uses: actions/setup-node@v3.7.0
         with:
