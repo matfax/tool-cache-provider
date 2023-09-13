@@ -39,6 +39,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: initialize CodeQL
-        uses: github/codeql-action/init@v2.21.2
+        uses: github/codeql-action/init@v2.21.6
         with:
           languages: javascript
