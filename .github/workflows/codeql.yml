@@ -45,7 +45,7 @@ jobs:
         shell: bash
     steps:
       - name: check out repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: initialize CodeQL
         uses: github/codeql-action/init@v2.21.2
         with:
