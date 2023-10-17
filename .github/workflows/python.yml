@@ -33,7 +33,7 @@ jobs:
         python-version: ${{ fromJson(needs.prepare.outputs.versions) }}
     steps:
       - name: check out repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: install poetry from PyPI
         uses: install-pinned/poetry@c8ffdb7537f9fb46078642ff9ce5e28d49021597  # 1.5.1
       - name: setting up python ${{ matrix.python-version }}
