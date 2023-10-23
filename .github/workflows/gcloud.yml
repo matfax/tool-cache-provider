@@ -60,7 +60,7 @@ jobs:
           version: ''
           project_id: github-matfax
       - name: set up latest Node.js LTS
-        uses: actions/setup-node@v3.7.0
+        uses: actions/setup-node@v4.0.0
         with:
           node-version: lts/Hydrogen
           cache: npm
