@@ -1,4 +1,4 @@
-name: schedule
+name: schedule maintenance
 
 on:
   push:
@@ -7,73 +7,42 @@ on:
   schedule:
     - cron: '0 7 * * *'
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - create
+      - maintain
+      - backup
+      - delete
+    types:
+      - completed
 
 concurrency: scheduler
 
 jobs:
-  create:
-    name: create instance
+  invoke:
+    name: invoke ${{ matrix.workflow }}
     permissions:
-      contents: none
+      contents: write
     defaults:
       run:
         shell: bash
-    environment: scheduler
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - trigger: none
+            workflow: create
+          - trigger: create
+            workflow: maintain
+          - trigger: maintain
+            workflow: backup
+          - trigger: backup
+            workflow: delete
+    if: (github.event_name != 'workflow_run' || github.event.workflow_run.event == 'repository_dispatch' && github.event.workflow_run.conclusion == 'success') && (github.event_name != 'workflow_run' && matrix.trigger == 'none' || github.event.workflow_run.workflow.id == matrix.trigger)
     steps:
-      - name: invoke create workflow
-        uses: aurelien-baudet/workflow-dispatch@v2.1.1
+      - name: dispatch scheduled event
+        uses: peter-evans/repository-dispatch@v2.1.2
         with:
-          workflow: create
-          token: ${{ secrets.GH_TOKEN }}
-
-  maintain:
-    name: maintain instance
-    needs: create
-    permissions:
-      contents: none
-    defaults:
-      run:
-        shell: bash
-    environment: scheduler
-    runs-on: ubuntu-latest
-    steps:
-      - name: invoke maintenance workflow
-        uses: aurelien-baudet/workflow-dispatch@v2.1.1
-        with:
-          workflow: maintenance
-          token: ${{ secrets.GH_TOKEN }}
-
-  backup:
-    name: backup instance
-    needs: maintain
-    permissions:
-      contents: none
-    defaults:
-      run:
-        shell: bash
-    environment: scheduler
-    runs-on: ubuntu-latest
-    steps:
-      - name: invoke backup workflow
-        uses: aurelien-baudet/workflow-dispatch@v2.1.1
-        with:
-          workflow: backup
-          token: ${{ secrets.GH_TOKEN }}
-
-  delete:
-    name: delete instance
-    needs: backup
-    permissions:
-      contents: none
-    defaults:
-      run:
-        shell: bash
-    environment: scheduler
-    runs-on: ubuntu-latest
-    steps:
-      - name: invoke delete workflow
-        uses: aurelien-baudet/workflow-dispatch@v2.1.1
-        with:
-          workflow: delete
-          token: ${{ secrets.GH_TOKEN }}
+          event-type: scheduled-${{ matrix.workflow }}
+          client-payload: '{"sha": "${{ github.event_name == \"workflow_run\" && github.event.workflow_run.payload.sha || github.sha }}"}'

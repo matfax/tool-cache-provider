@@ -1,13 +1,17 @@
 name: create
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - scheduled-create
 
 concurrency: github
 
 jobs:
   check-instance:
     name: check instance availability
-    uses: ./.github/workflows/gcloud.yml
+    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
     secrets: inherit
     permissions:
       contents: read
@@ -19,7 +23,7 @@ jobs:
 
   check-backup:
     name: check backup availability
-    uses: ./.github/workflows/gcloud.yml
+    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
     secrets: inherit
     permissions:
       contents: read
@@ -35,7 +39,7 @@ jobs:
     needs:
       - check-instance
       - check-backup
-    uses: ./.github/workflows/gcloud.yml
+    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
     secrets: inherit
     permissions:
       contents: read
