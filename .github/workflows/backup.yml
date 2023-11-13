@@ -5,6 +5,18 @@ on: workflow_dispatch
 concurrency: github
 
 jobs:
+  list-backups:
+    name: list older backups
+    uses: ./.github/workflows/gcloud.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      subcommand: machine-images list
+        --sort-by=name
+        --filter=${{ vars.INSTANCE }}-r
+
   check:
     name: check instance
     uses: ./.github/workflows/gcloud.yml
@@ -18,7 +30,9 @@ jobs:
 
   backup:
     name: backup instance
-    needs: check
+    needs:
+      - list-backups
+      - check
     uses: ./.github/workflows/gcloud.yml
     secrets: inherit
     permissions:
@@ -52,3 +66,19 @@ jobs:
           script: |
             const sizeInMB = ${{ fromJSON(needs.backup.outputs.result)[0].totalStorageBytes }} / 1024 / 1024
             core.info(`backup size is ${sizeInMB} MB`)
+
+  delete:
+    name: delete backup ${{ matrix.image.name }}
+    needs:
+      - list-backups
+      - verify
+    uses: ./.github/workflows/gcloud.yml
+    strategy:
+      matrix:
+        image: ${{ fromJSON(needs.list-backups.outputs.result) }}
+    secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      subcommand: machine-images delete ${{ matrix.image.name }}
