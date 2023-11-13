@@ -45,4 +45,4 @@ jobs:
         uses: peter-evans/repository-dispatch@v2.1.2
         with:
           event-type: scheduled-${{ matrix.workflow }}
-          client-payload: '{"sha": "${{ github.event_name == \"workflow_run\" && github.event.workflow_run.payload.sha || github.sha }}"}'
+          client-payload: '{"sha": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.payload.sha || github.sha }}"}'
