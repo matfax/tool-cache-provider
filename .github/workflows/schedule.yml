@@ -40,7 +40,7 @@ jobs:
         id: filtered
         uses: nickofthyme/object-remap@v2.0.0
         with:
-          workflow: ${{ fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name] }}
+          workflow: ${{ toJson(fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name]) }}
 
   invoke:
     name: invoke ${{ matrix.graphs.workflow }}
