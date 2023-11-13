@@ -20,7 +20,7 @@ concurrency: scheduler
 
 jobs:
   invoke:
-    name: invoke ${{ matrix.workflow }}
+    name: invoke ${{ matrix.graphs.workflow }}
     permissions:
       actions: write
     defaults:
@@ -28,20 +28,18 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1
+      max-parallel: 3
+      fail-fast: false
       matrix:
-        include:
-          - trigger: none
-            workflow: create
-          - trigger: create
-            workflow: maintain
-          - trigger: maintain
-            workflow: backup
-          - trigger: backup
-            workflow: delete
-    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && (github.event_name != 'workflow_run' && matrix.trigger == 'none' || contains(github.event.workflow_run.workflow.path, matrix.trigger))
+        graphs: [
+          { trigger: "none", workflow: "create" },
+          { trigger: "create", workflow: "maintain" },
+          { trigger: "maintain", workflow: "backup" },
+          { trigger: "backup", workflow: "delete" }
+        ]
+    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && (github.event_name != 'workflow_run' && matrix.graphs.trigger == 'none' || contains(github.event.workflow_run.workflow.path, matrix.graphs.trigger))
     steps:
-      - name: dispatch ${{ matrix.workflow }} workflow
+      - name: dispatch ${{ matrix.graphs.workflow }} workflow
         uses: benc-uk/workflow-dispatch@v1.2.2
         with:
-          workflow: ${{ matrix.workflow }}.yml
+          workflow: ${{ matrix.graphs.workflow }}.yml
