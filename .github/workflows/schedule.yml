@@ -22,7 +22,7 @@ jobs:
   invoke:
     name: invoke ${{ matrix.workflow }}
     permissions:
-      contents: write
+      actions: write
     defaults:
       run:
         shell: bash
@@ -39,10 +39,9 @@ jobs:
             workflow: backup
           - trigger: backup
             workflow: delete
-    if: (github.event_name != 'workflow_run' || github.event.workflow_run.event == 'repository_dispatch' && github.event.workflow_run.conclusion == 'success') && (github.event_name != 'workflow_run' && matrix.trigger == 'none' || github.event.workflow_run.workflow.id == matrix.trigger)
+    if: (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') && (github.event_name != 'workflow_run' && matrix.trigger == 'none' || contains(github.event.workflow_run.workflow.path, matrix.trigger))
     steps:
-      - name: dispatch scheduled event
-        uses: peter-evans/repository-dispatch@v2.1.2
+      - name: dispatch ${{ matrix.workflow }} workflow
+        uses: benc-uk/workflow-dispatch@v1.2.2
         with:
-          event-type: scheduled-${{ matrix.workflow }}
-          client-payload: '{"sha": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.payload.sha || github.sha }}"}'
+          workflow: ${{ matrix.workflow }}.yml
