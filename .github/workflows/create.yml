@@ -11,7 +11,7 @@ concurrency: github
 jobs:
   check-instance:
     name: check instance availability
-    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
+    uses: ./.github/workflows/gcloud.yml@${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.sha }}
     secrets: inherit
     permissions:
       contents: read
@@ -23,7 +23,7 @@ jobs:
 
   check-backup:
     name: check backup availability
-    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
+    uses: ./.github/workflows/gcloud.yml@${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.sha }}
     secrets: inherit
     permissions:
       contents: read
@@ -39,7 +39,7 @@ jobs:
     needs:
       - check-instance
       - check-backup
-    uses: ./.github/workflows/gcloud.yml@${{ github.sha || github.event.client_payload.sha }}
+    uses: ./.github/workflows/gcloud.yml@${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.sha }}
     secrets: inherit
     permissions:
       contents: read

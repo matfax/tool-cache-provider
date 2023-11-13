@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: check out repository
         uses: actions/checkout@v3.5.3
+        with:
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.ref }}
       - id: auth
         name: authenticate to Google Cloud
         uses: google-github-actions/auth@v1.1.1
