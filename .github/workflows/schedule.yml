@@ -43,7 +43,7 @@ jobs:
           workflow: ${{ toJson(fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name]) }}
 
   invoke:
-    name: invoke ${{ matrix.graphs.workflow }}
+    name: invoke ${{ matrix.workflow }}
     needs: check
     permissions:
       actions: write
@@ -54,8 +54,8 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
-      - name: dispatch ${{ matrix.graphs.workflow }} workflow
+      - name: dispatch ${{ matrix.workflow }} workflow
         uses: benc-uk/workflow-dispatch@v1.2.2
         with:
-          workflow: ${{ matrix.graphs.workflow }}.yml
+          workflow: ${{ matrix.workflow }}.yml
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.ref || github.ref }}
