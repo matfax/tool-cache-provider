@@ -38,7 +38,7 @@ jobs:
           backup: '[delete]'
       - name: filter graph
         id: filtered
-        uses: nickofthyme/object-filter@v2.0.0
+        uses: nickofthyme/object-remap@v2.0.0
         with:
           selected: ${{ fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name] }}
 
