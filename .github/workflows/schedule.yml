@@ -32,10 +32,10 @@ jobs:
         id: graph
         uses: nickofthyme/object-remap@v2.0.0
         with:
-          none: '[create]'
-          create: '[maintain]'
-          maintain: '[backup]'
-          backup: '[delete]'
+          none: '["create"]'
+          create: '["maintain"]'
+          maintain: '["backup"]'
+          backup: '["delete"]'
       - name: filter graph
         id: filtered
         uses: nickofthyme/object-remap@v2.0.0
