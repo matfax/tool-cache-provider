@@ -25,7 +25,7 @@ jobs:
       contents: none
     runs-on: ubuntu-latest
     outputs:
-      workflows: ${{ fromJson(steps.filtered.outputs.json).selected }}
+      workflows: ${{ steps.filtered.outputs.json }}
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: set up graph
@@ -40,7 +40,7 @@ jobs:
         id: filtered
         uses: nickofthyme/object-remap@v2.0.0
         with:
-          selected: ${{ fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name] }}
+          workflow: ${{ fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.workflow.name] }}
 
   invoke:
     name: invoke ${{ matrix.graphs.workflow }}
@@ -52,8 +52,7 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        workflow: ${{ fromJson(needs.check.outputs.workflows) }}
+      matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
       - name: dispatch ${{ matrix.graphs.workflow }} workflow
         uses: benc-uk/workflow-dispatch@v1.2.2
