@@ -23,6 +23,7 @@ concurrency: scheduler
 jobs:
   check:
     name: check conditions
+    environment: scheduler
     permissions:
       contents: none
     runs-on: ubuntu-latest
@@ -46,6 +47,7 @@ jobs:
 
   invoke:
     name: invoke ${{ matrix.workflow }}
+    environment: scheduler
     needs: check
     permissions:
       actions: write
