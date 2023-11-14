@@ -8,6 +8,8 @@ on:
     - cron: '0 7 * * *'
   workflow_dispatch:
   workflow_run:
+    branches:
+      - main
     workflows:
       - create
       - maintain
