@@ -59,7 +59,7 @@ jobs:
       matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
       - name: dispatch ${{ matrix.workflow }} workflow
-        uses: benc-uk/workflow-dispatch@v1.2.2
+        uses: pauldraper/workflow-dispatch@v1.5
         with:
           workflow: ${{ matrix.workflow }}.yml
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.ref || github.sha }}
