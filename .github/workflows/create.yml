@@ -1,6 +1,9 @@
 name: create
 
-on: workflow_dispatch
+on:
+  repository_dispatch:
+    types:
+      - scheduled-create
 
 concurrency: github
 
