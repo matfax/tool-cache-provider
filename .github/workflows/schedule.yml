@@ -45,12 +45,31 @@ jobs:
         with:
           workflow: ${{ toJson(fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.name]) }}
 
+  meta:
+    name: get meta data
+    environment: scheduler
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Enrich Workflow Run Event
+        uses: pl-strflt/rich-workflow-run@v1.0.0
+        id: workflow-run
+        with:
+          jobs-url: ${{ github.event.workflow_run.jobs_url }}
+          logs-url: ${{ github.event.workflow_run.logs_url }}
+      - name: Print information about the workflow run jobs
+        run: echo "${{ steps.download-info.outputs.jobs }}"
+      - name: Print information about the workflow run logs
+        run: echo "${{ steps.download-info.outputs.logs }}"
+
   invoke:
     name: invoke ${{ matrix.workflow }}
     environment: scheduler
     needs: check
     permissions:
-      actions: write
+      contents: write
     defaults:
       run:
         shell: bash
@@ -58,8 +77,13 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
+      - uses: marocchino/action-workflow_run-status@4d066ae9d73b3eb68ad4597e7fc612ddc6216dfc
       - name: dispatch ${{ matrix.workflow }} workflow
-        uses: pauldraper/workflow-dispatch@v1.5
+        uses: peter-evans/repository-dispatch@v2.1.2
         with:
-          workflow: ${{ matrix.workflow }}.yml
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.ref || github.sha }}
+          event-type: scheduled-${{ matrix.workflow }}
+          client-payload: |
+            {
+              "ref": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.ref || github.ref }}",
+              "sha": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.sha || github.sha }}"
+            }
