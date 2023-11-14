@@ -78,6 +78,7 @@ jobs:
       matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
       - uses: marocchino/action-workflow_run-status@4d066ae9d73b3eb68ad4597e7fc612ddc6216dfc
+        if: github.event_name == 'workflow_run'
       - name: dispatch ${{ matrix.workflow }} workflow
         uses: peter-evans/repository-dispatch@v2.1.2
         with:
