@@ -1,0 +1,38 @@
+name: dispatcher
+
+on:
+  workflow_run:
+    workflows:
+      - create
+    types:
+      - completed
+
+jobs:
+  schedule:
+    name: schedule
+    environment: scheduler
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Enrich Workflow Run Event
+        uses: pl-strflt/rich-workflow-run@v1.0.0
+        id: workflow-run
+        with:
+          jobs-url: ${{ github.event.workflow_run.jobs_url }}
+      - name: Print information about the workflow run jobs
+        run: echo "${{ steps.workflow-run.outputs.jobs }}"
+      - name: dispatch ${{ matrix.workflow }} workflow
+        uses: peter-evans/repository-dispatch@v2.1.2
+        with:
+          event-type: loop-schedule
+          client-payload: |
+            {
+              "trigger": "${{ github.event.workflow_run.name }}",
+              "ref": "${{ github.event.workflow_run.ref }}",
+              "sha": "${{ github.event.workflow_run.sha }}"
+            }

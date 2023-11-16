@@ -7,8 +7,9 @@ on:
   schedule:
     - cron: '0 7 * * *'
   workflow_dispatch:
-  workflow_run:
-    workflows: [create]
+  repository_dispatch:
+    types:
+      - loop-schedule
 
 concurrency: scheduler
 
@@ -21,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       workflows: ${{ steps.filtered.outputs.json }}
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: set up graph
         id: graph
@@ -35,23 +35,7 @@ jobs:
         id: filtered
         uses: nickofthyme/object-remap@v2.0.0
         with:
-          workflow: ${{ toJson(fromJson(steps.graph.outputs.json)[github.event_name != 'workflow_run' && 'none' || github.event.workflow_run.name]) }}
-
-  meta:
-    name: get meta data
-    environment: scheduler
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-    if: github.event_name == 'workflow_run'
-    steps:
-      - name: Enrich Workflow Run Event
-        uses: pl-strflt/rich-workflow-run@v1.0.0
-        id: workflow-run
-        with:
-          jobs-url: ${{ github.event.workflow_run.jobs_url }}
-      - name: Print information about the workflow run jobs
-        run: echo "${{ steps.workflow-run.outputs.jobs }}"
+          workflow: ${{ toJson(fromJson(steps.graph.outputs.json)[github.event_name != 'repository_dispatch' && 'none' || github.event.client_payload.trigger]) }}
 
   invoke:
     name: invoke ${{ matrix.workflow }}
@@ -66,14 +50,12 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.check.outputs.workflows) }}
     steps:
-      - uses: marocchino/action-workflow_run-status@4d066ae9d73b3eb68ad4597e7fc612ddc6216dfc
-        if: github.event_name == 'workflow_run'
       - name: dispatch ${{ matrix.workflow }} workflow
         uses: peter-evans/repository-dispatch@v2.1.2
         with:
           event-type: scheduled-${{ matrix.workflow }}
           client-payload: |
             {
-              "ref": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.ref || github.ref }}",
-              "sha": "${{ github.event_name == 'workflow_run' && github.event.workflow_run.sha || github.sha }}"
+              "ref": "${{ github.event_name == 'repository_dispatch' && github.event.client_payload.ref || github.ref }}",
+              "sha": "${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || github.sha }}"
             }
