@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_run'
     steps:
       - name: Enrich Workflow Run Event
         uses: pl-strflt/rich-workflow-run@v1.0.0
