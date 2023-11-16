@@ -15,8 +15,6 @@ on:
       - maintain
       - backup
       - delete
-    types:
-      - completed
 
 concurrency: scheduler
 
@@ -58,11 +56,8 @@ jobs:
         id: workflow-run
         with:
           jobs-url: ${{ github.event.workflow_run.jobs_url }}
-          logs-url: ${{ github.event.workflow_run.logs_url }}
       - name: Print information about the workflow run jobs
-        run: echo "${{ steps.download-info.outputs.jobs }}"
-      - name: Print information about the workflow run logs
-        run: echo "${{ steps.download-info.outputs.logs }}"
+        run: echo "${{ steps.workflow-run.outputs.jobs }}"
 
   invoke:
     name: invoke ${{ matrix.workflow }}
