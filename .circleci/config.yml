@@ -133,11 +133,11 @@ jobs:
     parameters:
       gcloud-cli-version:
         description: the gcloud CLI version to use
-        default: 455.0.0
+        default: '455.0.0'
         type: string
       jq-version:
         description: the jq version to use
-        default: 1.7
+        default: '1.7'
         type: string
     executor:
       name: gcp-cli/google
