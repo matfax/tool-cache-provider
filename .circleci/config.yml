@@ -25,7 +25,7 @@ commands:
     steps:
       - run:
           name: run << parameters.command >> command
-          command: >
+          command: |
             source "${BASH_ENV}"
             subcommand=$(echo "<< parameters.subcommand >>" | tr '\n' ' ')
             echo "Running ${subcommand}"
@@ -34,7 +34,7 @@ commands:
             echo "Exit code: ${exit_code}"
             sed -i '/^EXIT_CODE=/d' "${BASH_ENV}"
             echo "export EXIT_CODE=${exit_code}" >> "${BASH_ENV}"
-            if [ -z "<< parameters.output_variable >>" ]; then
+            if [ -z "<< parameters.output_variable >>"]; then
               echo "Output omitted because no variable name was specified"
             else
               echo "export << parameters.output_variable >>='${command_output}'" >> "${BASH_ENV}"
@@ -44,7 +44,7 @@ commands:
           steps:
             - run:
                 name: fail on success
-                command: >
+                command: |
                   source "${BASH_ENV}"
                   if [[ $EXIT_CODE -eq 0 ]]; then
                     echo "the command succeeded, but was expected to fail"
@@ -55,7 +55,7 @@ commands:
           steps:
             - run:
                 name: fail on failure
-                command: >
+                command: |
                   source "${BASH_ENV}"
                   if [[ $EXIT_CODE -ne 0 ]]; then
                     echo "the command failed, but was expected to succeed"
@@ -78,7 +78,7 @@ commands:
     steps:
       - run:
           name: extract value from json
-          command: >
+          command: |
             source "${BASH_ENV}"
             json_output=$(echo "${<< parameters.json_variable >>}" | jq -r "<< parameters.json_path >>")
             echo "Match: ${json_output}"
