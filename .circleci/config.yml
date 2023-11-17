@@ -20,8 +20,8 @@ commands:
         type: boolean
       output_variable:
         description: if set, the output will be stored in the specified variable
-        default: ' '
-        type: env_var_name
+        default: ''
+        type: string
     steps:
       - run:
           name: run << parameters.command >> command
@@ -71,8 +71,8 @@ commands:
         type: string
       output_variable:
         description: the output will be stored in the specified variable
-        default: ' '
-        type: env_var_name
+        default: ''
+        type: string
     steps:
       - run:
           name: extract value from json
