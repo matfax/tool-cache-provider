@@ -95,18 +95,15 @@ commands:
         type: env_var_name
     steps:
       - gcloud:
-          name: check instance availability
           subcommand: instances describe ${<< parameters.instance_name_variable >>}
           expect_failure: true
       - gcloud:
-          name: check backup availability
           output_variable: BACKUP_LIST
           subcommand: machine-images list
             --limit=1
             --sort-by=~name
             --filter=${<< parameters.instance_name_variable >>}-r
       - json:
-          name: extract backup name
           json_variable: BACKUP_LIST
           json_path: '.[0].name'
           output_variable: PREVIOUS_BACKUP
