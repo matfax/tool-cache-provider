@@ -152,7 +152,6 @@ workflows:
     jobs:
       - gcp-prepare:
           name: maintain system
-          type: approval
           context: gcp
           filters:
             branches:
