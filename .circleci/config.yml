@@ -149,15 +149,10 @@ jobs:
 
 workflows:
   maintain:
-    triggers:
-        - schedule:
-            cron: "0 5 * * *"
-            filters:
-              branches:
-                only:
-                    - main
     jobs:
       - gcp-prepare:
+          name: maintain system
+          type: approval
           context: gcp
           filters:
             branches:
