@@ -30,7 +30,7 @@ commands:
           name: run << parameters.command >> command to << parameters.purpose >>
           command: |
             source "${BASH_ENV}"
-            command_output=$(gcloud << parameters.command >> << parameters.subcommand >> --quiet --format="json" --verbosity=info 2>&1)
+            command_output=$(gcloud << parameters.command >> << parameters.subcommand >> --quiet --format="json" --verbosity=info)
             exit_code=$?
             echo "Exit code: ${exit_code}"
             sed -i '/^EXIT_CODE=/d' "${BASH_ENV}"
@@ -95,14 +95,14 @@ commands:
   create:
     description: create a new instance
     parameters:
-      instance_name_variable:
+      instance_name:
         description: the variable that contains the instance name
-        default: INSTANCE
-        type: env_var_name
+        default: $INSTANCE
+        type: string
     steps:
       - gcloud:
           purpose: check instance availability
-          subcommand: instances describe ${<< parameters.instance_name_variable >>}
+          subcommand: instances describe << parameters.instance_name >>
           expect_failure: true
       - gcloud:
           purpose: list backups
@@ -111,7 +111,7 @@ commands:
             machine-images list
               --limit=1
               --sort-by=~name
-              --filter=${<< parameters.instance_name_variable >>}-r
+              --filter=<< parameters.instance_name >>-r
       - json:
           purpose: determine latest backup
           json_variable: BACKUP_LIST
@@ -120,7 +120,7 @@ commands:
       - gcloud:
           purpose: create maintenance instance
           subcommand: >-
-            instances create ${<< parameters.instance_name_variable >>}
+            instances create << parameters.instance_name >>
               --machine-type=t2d-standard-4
               --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
               --no-restart-on-failure
