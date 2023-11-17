@@ -28,8 +28,10 @@ commands:
           command: >
             source "${BASH_ENV}"
             subcommand=$(echo "<< parameters.subcommand >>" | tr '\n' ' ')
+            echo "Running ${subcommand}"
             command_output=$(gcloud << parameters.command >> ${subcommand} --quiet --format="json" --verbosity=info 2>&1)
             exit_code=$?
+            echo "Exit code: ${exit_code}"
             sed -i '/^EXIT_CODE=/d' "${BASH_ENV}"
             echo "export EXIT_CODE=${exit_code}" >> "${BASH_ENV}"
             if [ -z "<< parameters.output_variable >>" ]; then
