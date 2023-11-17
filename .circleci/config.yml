@@ -1,0 +1,172 @@
+version: 2.1
+
+commands:
+  gcloud:
+    description: execute the provided subcommand on gcloud
+    parameters:
+      command:
+        description: the gcloud command to execute
+        default: beta compute
+        type: enum
+        enum:
+          - beta compute
+          - compute
+      subcommand:
+        description: the gcloud subcommand to execute
+        type: string
+      expect_failure:
+        description: the action is supposed to succeed on failure and fail on success
+        default: false
+        type: boolean
+      output_variable:
+        description: if set, the output will be stored in the specified variable
+        default: ' '
+        type: env_var_name
+    steps:
+      - run:
+          name: run << parameters.command >> command
+          command: >
+            source "${BASH_ENV}"
+            subcommand=$(echo "<< parameters.subcommand >>" | tr '\n' ' ')
+            command_output=$(gcloud << parameters.command >> ${subcommand} --quiet --format="json" --verbosity=info 2>&1)
+            exit_code=$?
+            sed -i '/^EXIT_CODE=/d' "${BASH_ENV}"
+            echo "export EXIT_CODE=${exit_code}" >> "${BASH_ENV}"
+            if [ -z "<< parameters.output_variable >>" ]; then
+              echo "Output omitted because no variable name was specified"
+            else
+              echo "export << parameters.output_variable >>='${command_output}'" >> "${BASH_ENV}"
+            fi
+      - when:
+          condition: << parameters.expect_failure >>
+          steps:
+            - run:
+                name: fail on success
+                command: >
+                  source "${BASH_ENV}"
+                  if [[ $EXIT_CODE -eq 0 ]]; then
+                    echo "the command succeeded, but was expected to fail"
+                    exit 1
+                  fi
+      - unless:
+          condition: << parameters.expect_failure >>
+          steps:
+            - run:
+                name: fail on failure
+                command: >
+                  source "${BASH_ENV}"
+                  if [[ $EXIT_CODE -ne 0 ]]; then
+                    echo "the command failed, but was expected to succeed"
+                    exit 1
+                  fi
+
+  json:
+    description: extract a value from a json string
+    parameters:
+      json_variable:
+        description: the variable that contains the json string
+        type: env_var_name
+      json_path:
+        description: the path to the value to extract
+        type: string
+      output_variable:
+        description: the output will be stored in the specified variable
+        default: ' '
+        type: env_var_name
+    steps:
+      - run:
+          name: extract value from json
+          command: >
+            source "${BASH_ENV}"
+            json_output=$(echo "${<< parameters.json_variable >>}" | jq -r "<< parameters.json_path >>")
+            echo "Match: ${json_output}"
+            if [ -z "<< parameters.output_variable >>" ]; then
+              echo "Output omitted because no output variable name was specified"
+            else
+              echo "export << parameters.output_variable >>='${json_output}'" >> "${BASH_ENV}"
+            fi
+
+  create:
+    description: create a new instance
+    parameters:
+      instance_name_variable:
+        description: the variable that contains the instance name
+        default: INSTANCE
+        type: env_var_name
+    steps:
+      - gcloud:
+          name: check instance availability
+          subcommand: instances describe ${<< parameters.instance_name_variable >>}
+          expect_failure: true
+      - gcloud:
+          name: check backup availability
+          output_variable: BACKUP_LIST
+          subcommand: machine-images list
+            --limit=1
+            --sort-by=~name
+            --filter=${<< parameters.instance_name_variable >>}-r
+      - json:
+          name: extract backup name
+          json_variable: BACKUP_LIST
+          json_path: '.[0].name'
+          output_variable: PREVIOUS_BACKUP
+      - gcloud:
+          subcommand: instances create ${<< parameters.instance_name_variable >>}
+            --machine-type=t2d-standard-4
+            --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
+            --no-restart-on-failure
+            --maintenance-policy=TERMINATE
+            --provisioning-model=SPOT
+            --instance-termination-action=STOP
+            --max-run-duration=7200s
+            --min-cpu-platform=Automatic
+            --shielded-secure-boot
+            --shielded-vtpm
+            --shielded-integrity-monitoring
+            --labels=goog-ec-src=vm_add-gcloud
+            --reservation-affinity=any
+            --key-revocation-action-type=stop
+            --source-machine-image=${PREVIOUS_BACKUP}
+
+jobs:
+  gcp-prepare:
+    parameters:
+      gcloud-cli-version:
+        description: the gcloud CLI version to use
+        default: 455.0.0
+        type: string
+      jq-version:
+        description: the jq version to use
+        default: 1.7
+        type: string
+    executor:
+      name: gcp-cli/google
+      version: << parameters.gcloud-cli-version >>
+    steps:
+      - gcp-cli/setup:
+          version: << parameters.gcloud-cli-version >>
+          use_oidc: true
+      - jq/install:
+          version: jq-<< parameters.jq-version >>
+      - create
+
+workflows:
+  maintain:
+    triggers:
+        - schedule:
+            cron: "0 5 * * *"
+            filters:
+              branches:
+                only:
+                    - main
+    jobs:
+      - gcp-prepare:
+          context: gcp
+          filters:
+            branches:
+              only:
+                - main
+
+orbs:
+  gcp-cli: circleci/gcp-cli@3.1.1
+  jq: circleci/jq@3.0.0
