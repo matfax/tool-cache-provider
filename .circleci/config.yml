@@ -138,7 +138,7 @@ jobs:
         type: string
     executor:
       name: gcp-cli/google
-      sdk-version: << parameters.gcloud-cli-version >>
+      sdk-version: << parameters.gcloud-cli-version >>-alpine
     steps:
       - gcp-cli/setup:
           version: << parameters.gcloud-cli-version >>
