@@ -4,6 +4,9 @@ commands:
   gcloud:
     description: execute the provided subcommand on gcloud
     parameters:
+      purpose:
+        description: the purpose of the command
+        type: string
       command:
         description: the gcloud command to execute
         default: beta compute
@@ -24,12 +27,10 @@ commands:
         type: string
     steps:
       - run:
-          name: run << parameters.command >> command
+          name: run << parameters.command >> command to << parameters.purpose >>
           command: |
             source "${BASH_ENV}"
-            subcommand=$(echo "<< parameters.subcommand >>" | tr '\n' ' ')
-            echo "Running ${subcommand}"
-            command_output=$(gcloud << parameters.command >> ${subcommand} --quiet --format="json" --verbosity=info 2>&1)
+            command_output=$(gcloud << parameters.command >> << parameters.subcommand >> --quiet --format="json" --verbosity=info 2>&1)
             exit_code=$?
             echo "Exit code: ${exit_code}"
             sed -i '/^EXIT_CODE=/d' "${BASH_ENV}"
@@ -43,7 +44,7 @@ commands:
           condition: << parameters.expect_failure >>
           steps:
             - run:
-                name: fail on success
+                name: check failure status of << parameters.command >> command
                 command: |
                   source "${BASH_ENV}"
                   if [[ $EXIT_CODE -eq 0 ]]; then
@@ -54,7 +55,7 @@ commands:
           condition: << parameters.expect_failure >>
           steps:
             - run:
-                name: fail on failure
+                name: check success status of << parameters.command >> command
                 command: |
                   source "${BASH_ENV}"
                   if [[ $EXIT_CODE -ne 0 ]]; then
@@ -65,6 +66,9 @@ commands:
   json:
     description: extract a value from a json string
     parameters:
+      purpose:
+        description: the purpose of the extraction
+        type: string
       json_variable:
         description: the variable that contains the json string
         type: env_var_name
@@ -77,7 +81,7 @@ commands:
         type: string
     steps:
       - run:
-          name: extract value from json
+          name: extract value from json to << parameters.purpose >>
           command: |
             source "${BASH_ENV}"
             json_output=$(echo "${<< parameters.json_variable >>}" | jq -r "<< parameters.json_path >>")
@@ -97,35 +101,41 @@ commands:
         type: env_var_name
     steps:
       - gcloud:
+          purpose: check instance availability
           subcommand: instances describe ${<< parameters.instance_name_variable >>}
           expect_failure: true
       - gcloud:
+          purpose: list backups
           output_variable: BACKUP_LIST
-          subcommand: machine-images list
-            --limit=1
-            --sort-by=~name
-            --filter=${<< parameters.instance_name_variable >>}-r
+          subcommand: >-
+            machine-images list
+              --limit=1
+              --sort-by=~name
+              --filter=${<< parameters.instance_name_variable >>}-r
       - json:
+          purpose: determine latest backup
           json_variable: BACKUP_LIST
           json_path: '.[0].name'
           output_variable: PREVIOUS_BACKUP
       - gcloud:
-          subcommand: instances create ${<< parameters.instance_name_variable >>}
-            --machine-type=t2d-standard-4
-            --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
-            --no-restart-on-failure
-            --maintenance-policy=TERMINATE
-            --provisioning-model=SPOT
-            --instance-termination-action=STOP
-            --max-run-duration=7200s
-            --min-cpu-platform=Automatic
-            --shielded-secure-boot
-            --shielded-vtpm
-            --shielded-integrity-monitoring
-            --labels=goog-ec-src=vm_add-gcloud
-            --reservation-affinity=any
-            --key-revocation-action-type=stop
-            --source-machine-image=${PREVIOUS_BACKUP}
+          purpose: create maintenance instance
+          subcommand: >-
+            instances create ${<< parameters.instance_name_variable >>}
+              --machine-type=t2d-standard-4
+              --network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default
+              --no-restart-on-failure
+              --maintenance-policy=TERMINATE
+              --provisioning-model=SPOT
+              --instance-termination-action=STOP
+              --max-run-duration=7200s
+              --min-cpu-platform=Automatic
+              --shielded-secure-boot
+              --shielded-vtpm
+              --shielded-integrity-monitoring
+              --labels=goog-ec-src=vm_add-gcloud
+              --reservation-affinity=any
+              --key-revocation-action-type=stop
+              --source-machine-image=${PREVIOUS_BACKUP}
 
 jobs:
   gcp-prepare:
